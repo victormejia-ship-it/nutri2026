@@ -257,56 +257,8 @@
           <p class="mt-4 text-gray-600">Todos incluyen seguimiento personalizado y ajustes según tu progreso.</p>
         </div>
 
-        <div class="mt-14 grid md:grid-cols-3 gap-8">
-          <!-- Plan 1 -->
-          <div data-animate class="opacity-0 translate-y-6 transition-all duration-700 bg-white rounded-3xl shadow-lg p-8 flex flex-col">
-            <h3 class="text-xl font-bold text-gray-900">Esencial</h3>
-            <p class="mt-2 text-gray-500 text-sm">Ideal para empezar con hábitos saludables.</p>
-            <p class="mt-6 text-4xl font-extrabold text-brandDark">$29<span class="text-base font-medium text-gray-400">/mes</span></p>
-            <ul class="mt-6 space-y-3 text-gray-600 flex-1">
-              <li class="flex gap-2"><span class="text-green-500">✓</span> 1 consulta inicial</li>
-              <li class="flex gap-2"><span class="text-green-500">✓</span> Plan de alimentación básico</li>
-              <li class="flex gap-2"><span class="text-green-500">✓</span> Recetario digital</li>
-            </ul>
-            <a href="#contacto" class="mt-8 inline-flex items-center justify-center rounded-full border-2 border-brandDark text-brandDark font-semibold px-6 py-3 hover:bg-brandLight/20 transition-colors">
-              Elegir plan
-            </a>
-          </div>
-
-          <!-- Plan 2 (destacado) -->
-          <div data-animate class="opacity-0 translate-y-6 transition-all duration-700 delay-150 relative bg-brandDark text-white rounded-3xl shadow-2xl p-8 flex flex-col md:-translate-y-4">
-            <span class="absolute top-0 right-8 -translate-y-1/2 bg-green-500 text-brandDark text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wide">
-              Más popular
-            </span>
-            <h3 class="text-xl font-bold">Impulso</h3>
-            <p class="mt-2 text-green-200 text-sm">Seguimiento continuo para resultados sólidos.</p>
-            <p class="mt-6 text-4xl font-extrabold">$59<span class="text-base font-medium text-green-200">/mes</span></p>
-            <ul class="mt-6 space-y-3 text-green-50 flex-1">
-              <li class="flex gap-2"><span>✓</span> Consultas quincenales</li>
-              <li class="flex gap-2"><span>✓</span> Plan 100% personalizado</li>
-              <li class="flex gap-2"><span>✓</span> Soporte por WhatsApp</li>
-              <li class="flex gap-2"><span>✓</span> Ajustes ilimitados</li>
-            </ul>
-            <a href="#contacto" class="mt-8 inline-flex items-center justify-center rounded-full bg-green-500 hover:bg-green-400 text-brandDark font-bold px-6 py-3 transition-colors">
-              Elegir plan
-            </a>
-          </div>
-
-          <!-- Plan 3 -->
-          <div data-animate class="opacity-0 translate-y-6 transition-all duration-700 delay-300 bg-white rounded-3xl shadow-lg p-8 flex flex-col">
-            <h3 class="text-xl font-bold text-gray-900">Transformación</h3>
-            <p class="mt-2 text-gray-500 text-sm">Acompañamiento integral a largo plazo.</p>
-            <p class="mt-6 text-4xl font-extrabold text-brandDark">$99<span class="text-base font-medium text-gray-400">/mes</span></p>
-            <ul class="mt-6 space-y-3 text-gray-600 flex-1">
-              <li class="flex gap-2"><span class="text-green-500">✓</span> Consultas semanales</li>
-              <li class="flex gap-2"><span class="text-green-500">✓</span> Plan de entrenamiento aliado</li>
-              <li class="flex gap-2"><span class="text-green-500">✓</span> Análisis de composición corporal</li>
-              <li class="flex gap-2"><span class="text-green-500">✓</span> Acceso prioritario</li>
-            </ul>
-            <a href="#contacto" class="mt-8 inline-flex items-center justify-center rounded-full border-2 border-brandDark text-brandDark font-semibold px-6 py-3 hover:bg-brandLight/20 transition-colors">
-              Elegir plan
-            </a>
-          </div>
+        <div id="planes-lista" class="mt-14 grid md:grid-cols-3 gap-8">
+          <p class="text-gray-400 col-span-3 text-center">Cargando planes...</p>
         </div>
       </div>
     </section>
@@ -496,5 +448,6 @@
   </footer>
 
   <script src="js/script.js"></script>
+  <script type="module" src="js/planes-publicos.js"></script>
 </body>
 </html>

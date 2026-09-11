@@ -34,6 +34,8 @@ function abrirModal(plan = null) {
   document.getElementById("plan-precio").value = plan?.precio ?? "";
   document.getElementById("plan-descripcion").value = plan?.descripcion || "";
   document.getElementById("plan-features").value = (plan?.features || []).join("\n");
+  document.getElementById("plan-enlace-pago").value = plan?.enlacePago || "";
+  document.getElementById("plan-destacado").checked = Boolean(plan?.destacado);
   modal.classList.remove("hidden");
 }
 
@@ -51,6 +53,8 @@ form.addEventListener("submit", async (event) => {
     descripcion: document.getElementById("plan-descripcion").value.trim(),
     features: document.getElementById("plan-features").value
       .split("\n").map((f) => f.trim()).filter(Boolean),
+    enlacePago: document.getElementById("plan-enlace-pago").value.trim(),
+    destacado: document.getElementById("plan-destacado").checked,
   };
 
   if (id) {
@@ -75,9 +79,14 @@ async function cargarPlanes() {
   snap.forEach((docSnap) => {
     const p = { id: docSnap.id, ...docSnap.data() };
     const tarjeta = document.createElement("div");
-    tarjeta.className = "bg-white rounded-3xl shadow-lg p-6 flex flex-col";
+    tarjeta.className = `bg-white rounded-3xl shadow-lg p-6 flex flex-col ${p.destacado ? "ring-2 ring-green-500" : ""}`;
     tarjeta.innerHTML = `
-      <h3 class="text-lg font-bold text-gray-900">${p.nombre}</h3>
+      <div class="flex items-start justify-between gap-2">
+        <h3 class="text-lg font-bold text-gray-900">${p.destacado ? "⭐ " : ""}${p.nombre}</h3>
+        ${p.enlacePago
+          ? `<span class="flex-shrink-0 text-xs font-bold px-2 py-1 rounded-full bg-green-100 text-green-700">💳 Cobro activo</span>`
+          : `<span class="flex-shrink-0 text-xs font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700">Sin cobro en línea</span>`}
+      </div>
       <p class="text-sm text-gray-500 mt-1">${p.descripcion || ""}</p>
       <p class="mt-4 text-3xl font-extrabold text-brandDark">$${p.precio}<span class="text-sm font-medium text-gray-400">/mes</span></p>
       <ul class="mt-4 space-y-1.5 text-sm text-gray-600 flex-1">

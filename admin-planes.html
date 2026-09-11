@@ -89,6 +89,14 @@
         <label class="block text-sm font-semibold text-gray-700 mb-1.5">Beneficios (uno por línea)</label>
         <textarea id="plan-features" rows="4" class="w-full rounded-xl border border-gray-200 px-4 py-2.5"></textarea>
       </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Enlace de pago (Stripe, Mercado Pago, etc.)</label>
+        <input type="url" id="plan-enlace-pago" placeholder="https://" class="w-full rounded-xl border border-gray-200 px-4 py-2.5" />
+        <p class="mt-1 text-xs text-gray-400">Si lo dejas vacío, el botón público dirá "Contactar" en vez de "Pagar ahora".</p>
+      </div>
+      <label class="flex items-center gap-2 text-sm font-semibold text-gray-700">
+        <input type="checkbox" id="plan-destacado" /> Destacar como "Más popular" en la landing
+      </label>
       <div class="flex gap-3 pt-2">
         <button type="button" id="btn-cancelar-plan" class="flex-1 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold py-2.5">Cancelar</button>
         <button type="submit" class="flex-1 rounded-xl bg-green-500 hover:bg-green-400 text-brandDark font-bold py-2.5">Guardar</button>

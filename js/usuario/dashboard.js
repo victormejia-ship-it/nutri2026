@@ -45,6 +45,11 @@ protegerPagina(["usuario", "admin"], async (user, perfil) => {
       <ul class="mt-5 space-y-2 text-green-50 text-sm">
         ${(plan.features || []).map((f) => `<li class="flex gap-2"><span>✓</span> ${f}</li>`).join("")}
       </ul>
+      ${plan.enlacePago
+        ? `<a href="${plan.enlacePago}" target="_blank" rel="noopener" class="mt-6 inline-flex items-center justify-center w-full rounded-full bg-green-500 hover:bg-green-400 text-brandDark font-bold px-6 py-3 transition-colors">
+            Pagar / renovar plan
+          </a>`
+        : ""}
     </div>
   `;
 });
