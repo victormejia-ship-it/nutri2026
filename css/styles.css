@@ -1,0 +1,32 @@
+/* Nutripulso — estilos complementarios a Tailwind */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Header con sombra al hacer scroll (clase añadida por script.js) */
+#header.scrolled {
+  box-shadow: 0 4px 20px -8px rgb(0 0 0 / 0.15);
+}
+
+/* Animación de entrada al hacer scroll (activada por script.js vía IntersectionObserver) */
+[data-animate].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scrollbar más agradable en navegadores WebKit */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #f0fbf5;
+}
+::-webkit-scrollbar-thumb {
+  background: #8bdaa6;
+  border-radius: 999px;
+}
