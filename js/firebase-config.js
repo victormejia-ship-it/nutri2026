@@ -12,12 +12,12 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-aut
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "tu-proyecto.firebaseapp.com",
-  projectId: "tu-proyecto",
-  storageBucket: "tu-proyecto.appspot.com",
-  messagingSenderId: "TU_SENDER_ID",
-  appId: "TU_APP_ID",
+  apiKey: "AIzaSyAR4zuElf3JzDuHh1ka7_i5HrPg7xbdQo0",
+  authDomain: "nutripulso.firebaseapp.com",
+  projectId: "nutripulso",
+  storageBucket: "nutripulso.firebasestorage.app",
+  messagingSenderId: "785160414246",
+  appId: "1:785160414246:web:a1e47fc83969dc387af2e7",
 };
 
 export const app = initializeApp(firebaseConfig);
