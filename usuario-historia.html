@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mis citas | Nutripulso</title>
+  <title>Mi historia clínica | Nutripulso</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -39,8 +39,8 @@
       </a>
       <ul class="hidden md:flex items-center gap-6 text-sm font-semibold text-gray-500">
         <li><a href="usuario-dashboard.html" class="hover:text-brandDark">Mi plan</a></li>
-        <li><a href="usuario-citas.html" class="text-brandDark">Mis citas</a></li>
-        <li><a href="usuario-historia.html" class="hover:text-brandDark">Mi historia clínica</a></li>
+        <li><a href="usuario-citas.html" class="hover:text-brandDark">Mis citas</a></li>
+        <li><a href="usuario-historia.html" class="text-brandDark">Mi historia clínica</a></li>
         <li><a href="usuario-perfil.html" class="hover:text-brandDark">Mi perfil</a></li>
       </ul>
       <div class="flex items-center gap-4 text-sm">
@@ -52,35 +52,15 @@
     </nav>
   </header>
 
-  <main class="max-w-5xl mx-auto px-6 py-10 grid md:grid-cols-3 gap-8">
-    <form id="form-cita" class="md:col-span-1 bg-white rounded-3xl shadow-lg p-6 space-y-4 h-fit">
-      <h2 class="font-bold text-gray-900">Agendar nueva cita</h2>
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Fecha</label>
-        <input type="date" id="cita-fecha" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5" />
-      </div>
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Hora</label>
-        <input type="time" id="cita-hora" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5" />
-      </div>
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Motivo</label>
-        <textarea id="cita-motivo" rows="3" class="w-full rounded-xl border border-gray-200 px-4 py-2.5"></textarea>
-      </div>
-      <button type="submit" class="w-full rounded-xl bg-green-500 hover:bg-green-400 text-brandDark font-bold py-2.5 transition-colors">
-        Agendar
-      </button>
-      <p id="cita-mensaje" class="hidden text-sm font-medium text-brandDark text-center"></p>
-    </form>
+  <main class="max-w-5xl mx-auto px-6 py-10">
+    <h1 class="text-2xl font-extrabold text-gray-900">Mi historia clínica nutricional</h1>
+    <p class="mt-1 text-gray-500 text-sm">Solo tu nutriólogo puede editar esta información. Aquí puedes consultarla.</p>
 
-    <div class="md:col-span-2">
-      <h2 class="font-bold text-gray-900 mb-4">Historial de citas</h2>
-      <div id="lista-citas" class="space-y-3">
-        <p class="text-gray-400">Cargando tus citas...</p>
-      </div>
+    <div id="contenido-historia" class="mt-8 space-y-4">
+      <p class="text-gray-400">Cargando...</p>
     </div>
   </main>
 
-  <script type="module" src="js/usuario/citas.js"></script>
+  <script type="module" src="js/usuario/historia.js"></script>
 </body>
 </html>

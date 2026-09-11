@@ -42,5 +42,12 @@ service cloud.firestore {
       allow update: if isAdmin() || (isSignedIn() && resource.data.usuarioId == request.auth.uid);
       allow delete: if isAdmin();
     }
+
+    // Historia clínica nutricional: un documento por paciente (id = uid del
+    // paciente). Solo el admin la captura/edita; el paciente solo la lee.
+    match /historias/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isAdmin();
+    }
   }
 }

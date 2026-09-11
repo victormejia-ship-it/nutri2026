@@ -58,7 +58,8 @@ async function cargarUsuarios() {
           ${opcionesPlanes}
         </select>
       </td>
-      <td class="px-6 py-4 text-right">
+      <td class="px-6 py-4 text-right whitespace-nowrap">
+        <a href="admin-historia.html?uid=${uid}" class="text-brandDark hover:underline text-sm font-semibold mr-4">Historia clínica</a>
         <button data-uid="${uid}" class="btn-eliminar text-red-600 hover:underline text-sm font-semibold">Eliminar</button>
       </td>
     `;

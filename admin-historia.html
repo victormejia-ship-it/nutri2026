@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Historia clínica | Panel admin Nutripulso</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brandDark: '#0F3D2E', brandLight: '#A7E071' },
+          fontFamily: { sans: ['Montserrat', 'ui-sans-serif', 'system-ui'] },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    .campo label { display:block; font-size:.75rem; font-weight:600; color:#4B5563; margin-bottom:.25rem; }
+    .campo input, .campo select, .campo textarea {
+      width:100%; border:1px solid #E5E7EB; border-radius:.5rem; padding:.5rem .75rem; font-size:.875rem;
+    }
+    details.seccion > summary { cursor:pointer; list-style:none; }
+    details.seccion > summary::-webkit-details-marker { display:none; }
+    details.seccion[open] .chevron { transform: rotate(90deg); }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-700 antialiased">
+
+  <header class="bg-brandDark text-white">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <a href="index.html" class="flex items-center gap-2.5 font-extrabold">
+        <svg viewBox="0 0 48 48" class="h-8 w-8" aria-hidden="true">
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#A7E071" /><stop offset="100%" stop-color="#22C55E" />
+            </linearGradient>
+          </defs>
+          <path d="M8 40V8h7l17 22V8h8v32h-7L16 18v22H8z" fill="url(#logoGradient)" />
+        </svg>
+        Nutripulso <span class="text-green-400 font-semibold">· Admin</span>
+      </a>
+      <ul class="hidden md:flex items-center gap-6 text-sm font-semibold text-white/70">
+        <li><a href="admin-dashboard.html" class="hover:text-white">Usuarios</a></li>
+        <li><a href="admin-planes.html" class="hover:text-white">Planes</a></li>
+        <li><a href="admin-agenda.html" class="hover:text-white">Agenda</a></li>
+        <li><a href="admin-recetas.html" class="hover:text-white">Recetas</a></li>
+      </ul>
+      <div class="flex items-center gap-4 text-sm">
+        <span id="nombre-admin" class="hidden sm:inline text-white/70"></span>
+        <button id="btn-logout" class="rounded-full bg-white/10 hover:bg-white/20 px-4 py-2 font-semibold transition-colors">
+          Cerrar sesión
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-10">
+    <a href="admin-dashboard.html" class="text-sm font-semibold text-brandDark hover:underline">← Volver a Usuarios</a>
+
+    <div class="mt-3 flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold text-gray-900">Historia clínica nutricional</h1>
+        <p id="paciente-nombre" class="mt-1 text-gray-500 text-sm">Cargando paciente...</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="guardado-estado" class="text-sm text-gray-400"></span>
+        <button id="btn-guardar" class="rounded-full bg-green-500 hover:bg-green-400 text-brandDark font-bold px-6 py-2.5 transition-colors">
+          Guardar historia clínica
+        </button>
+      </div>
+    </div>
+
+    <form id="form-historia" class="mt-6 space-y-4">
+
+      <!-- 1. Datos generales -->
+      <details class="seccion bg-white rounded-2xl shadow p-6" open>
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          1. Datos generales <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 grid md:grid-cols-3 gap-4">
+          <div class="campo"><label>Fecha de elaboración</label><input type="date" data-field="datosGenerales.fechaElaboracion" /></div>
+          <div class="campo"><label>Fecha de nacimiento</label><input type="date" data-field="datosGenerales.fechaNacimiento" /></div>
+          <div class="campo"><label>Ocupación</label><input type="text" data-field="datosGenerales.ocupacion" /></div>
+          <div class="campo"><label>Colonia</label><input type="text" data-field="datosGenerales.colonia" /></div>
+          <div class="campo"><label>Delegación o municipio</label><input type="text" data-field="datosGenerales.delegacionMunicipio" /></div>
+          <div class="campo"><label>Teléfono</label><input type="tel" data-field="datosGenerales.telefono" /></div>
+          <div class="campo md:col-span-3"><label>Motivo de la consulta</label><textarea rows="2" data-field="datosGenerales.motivoConsulta"></textarea></div>
+          <div class="campo md:col-span-3"><label>Nutriólogo evaluador (nombre y firma)</label><input type="text" data-field="realizadaPor" /></div>
+        </div>
+      </details>
+
+      <!-- 2. Antecedentes heredofamiliares -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          2. Antecedentes heredofamiliares <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5">
+          <div id="tabla-heredofamiliares" class="overflow-x-auto"></div>
+          <div class="campo mt-4"><label>Observaciones</label><textarea rows="2" data-field="heredofamiliaresObservaciones"></textarea></div>
+        </div>
+      </details>
+
+      <!-- 3. Antecedentes personales patológicos -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          3. Antecedentes personales patológicos <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 grid md:grid-cols-2 gap-4">
+          <div class="campo md:col-span-2"><label>Observaciones</label><textarea rows="2" data-field="personalesPatologicos.observaciones"></textarea></div>
+          <div class="campo"><label>Alergias o intolerancias (alimentos/medicamentos)</label><input type="text" data-field="personalesPatologicos.alergias" /></div>
+          <div class="campo"><label>Horas de sueño al día</label><input type="text" data-field="personalesPatologicos.horasSueno" /></div>
+        </div>
+      </details>
+
+      <!-- 4. Consumo de sustancias bioactivas -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          4. Consumo de sustancias bioactivas <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5">
+          <div id="tabla-sustancias" class="overflow-x-auto"></div>
+        </div>
+      </details>
+
+      <!-- 5. Antecedentes gineco-obstétricos -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          5. Antecedentes gineco-obstétricos <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 grid md:grid-cols-4 gap-4">
+          <div class="campo"><label>Menarca</label><input type="text" data-field="ginecoObstetricos.menarca" /></div>
+          <div class="campo"><label>Ritmo</label><input type="text" data-field="ginecoObstetricos.ritmo" /></div>
+          <div class="campo"><label>Eumenorrea</label><select data-field="ginecoObstetricos.eumenorrea"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo"><label>Dismenorrea</label><input type="text" data-field="ginecoObstetricos.dismenorrea" /></div>
+          <div class="campo"><label>MPF</label><select data-field="ginecoObstetricos.mpf"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo"><label>G (gestas)</label><input type="text" data-field="ginecoObstetricos.g" /></div>
+          <div class="campo"><label>P (partos)</label><input type="text" data-field="ginecoObstetricos.p" /></div>
+          <div class="campo"><label>A (abortos)</label><input type="text" data-field="ginecoObstetricos.a" /></div>
+          <div class="campo"><label>C (cesáreas)</label><input type="text" data-field="ginecoObstetricos.c" /></div>
+          <div class="campo"><label>FUM</label><input type="text" data-field="ginecoObstetricos.fum" /></div>
+          <div class="campo md:col-span-4"><label>Observaciones</label><textarea rows="2" data-field="ginecoObstetricos.observaciones"></textarea></div>
+        </div>
+      </details>
+
+      <!-- 6. Padecimiento actual -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          6. Padecimiento actual y terapéutica <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5">
+          <div id="tabla-padecimientos" class="overflow-x-auto"></div>
+          <p class="mt-4 text-xs font-semibold text-gray-600 mb-2">Uso de:</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+            <label class="flex items-center gap-2"><input type="checkbox" data-field="padecimientoActual.usoDe.laxantes" /> Laxantes</label>
+            <label class="flex items-center gap-2"><input type="checkbox" data-field="padecimientoActual.usoDe.diureticos" /> Diuréticos</label>
+            <label class="flex items-center gap-2"><input type="checkbox" data-field="padecimientoActual.usoDe.antiacidos" /> Antiácidos</label>
+            <label class="flex items-center gap-2"><input type="checkbox" data-field="padecimientoActual.usoDe.analgesicos" /> Analgésicos</label>
+            <label class="flex items-center gap-2"><input type="checkbox" data-field="padecimientoActual.usoDe.antihistaminicos" /> Antihistamínicos</label>
+            <label class="flex items-center gap-2"><input type="checkbox" data-field="padecimientoActual.usoDe.paraBajarPeso" /> Meds. para bajar de peso</label>
+            <label class="flex items-center gap-2"><input type="checkbox" data-field="padecimientoActual.usoDe.hipoglucemiantes" /> Hipoglucemiantes</label>
+            <label class="flex items-center gap-2"><input type="checkbox" data-field="padecimientoActual.usoDe.hipolipemiantes" /> Hipolipemiantes</label>
+          </div>
+        </div>
+      </details>
+
+      <!-- 7. Valoración cardiovascular -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          7. Valoración cardiovascular (TA y FC) <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5">
+          <div id="tabla-cardiovascular" class="overflow-x-auto"></div>
+          <p class="mt-3 text-xs text-gray-400">Índice de Ruffier = [(P + P1 + P2) – 200] / 10 · &lt;1 Excelente · 1-5 Muy bueno · 6-10 Bueno · 11-15 Regular · &gt;15 Malo</p>
+        </div>
+      </details>
+
+      <!-- 8. Valoración antropométrica -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          8. Valoración antropométrica <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 space-y-5">
+          <div class="grid md:grid-cols-4 gap-4">
+            <div class="campo"><label>Peso habitual (kg)</label><input type="number" step="0.1" data-field="antropometria.indicadores.pesoHabitual" /></div>
+            <div class="campo"><label>Peso máximo (kg)</label><input type="number" step="0.1" data-field="antropometria.indicadores.pesoMaximo" /></div>
+            <div class="campo"><label>Peso mínimo (kg)</label><input type="number" step="0.1" data-field="antropometria.indicadores.pesoMinimo" /></div>
+            <div class="campo"><label>Edad (años)</label><input type="number" data-field="antropometria.indicadores.edad" /></div>
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <p class="text-sm font-semibold text-gray-700">Evaluaciones (peso, talla, pliegues, perímetros, diámetros, longitudes, índices)</p>
+              <button type="button" id="btn-nueva-antropometria" class="text-sm font-semibold text-brandDark hover:underline">+ Agregar evaluación</button>
+            </div>
+            <div id="lista-antropometria" class="space-y-2"></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 9. Actividad física -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          9. Actividad física o deporte <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 space-y-4">
+          <div id="tabla-actividad-fisica" class="overflow-x-auto"></div>
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="campo"><label>Total minutos/semana</label><input type="text" data-field="actividadFisica.totalMinutos" /></div>
+            <div class="campo"><label>Costo energético total</label><input type="text" data-field="actividadFisica.costoEnergeticoTotal" /></div>
+            <div class="campo"><label>¿Cumple recomendaciones ACSM?</label><select data-field="actividadFisica.cumpleACSM"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+            <div class="campo"><label>¿Qué no cumple? — Tiempo</label><input type="text" data-field="actividadFisica.queNoCumple.tiempo" /></div>
+            <div class="campo"><label>¿Qué no cumple? — Frecuencia</label><input type="text" data-field="actividadFisica.queNoCumple.frecuencia" /></div>
+            <div class="campo"><label>¿Qué no cumple? — Intensidad</label><input type="text" data-field="actividadFisica.queNoCumple.intensidad" /></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 10. Recomendación de actividad física -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          10. Recomendación de actividad física <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 space-y-4">
+          <div id="tabla-recomendacion-actividad" class="overflow-x-auto"></div>
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="campo"><label>Total minutos/semana</label><input type="text" data-field="recomendacionActividad.totalMinutos" /></div>
+            <div class="campo"><label>Costo energético total</label><input type="text" data-field="recomendacionActividad.costoEnergeticoTotal" /></div>
+            <div class="campo md:col-span-1"><label>Observaciones</label><input type="text" data-field="recomendacionActividad.observaciones" /></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 11. Valoración bioquímica -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          11. Valoración bioquímica <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 space-y-6">
+          <div>
+            <p class="text-sm font-semibold text-gray-700 mb-2">Química sanguínea</p>
+            <div class="campo max-w-xs mb-3">
+              <label>Mecanismo de toma de muestra</label>
+              <select data-field="bioquimica.quimicaSanguinea.mecanismo">
+                <option value="">—</option><option>Laboratorio</option><option>Accu-chek</option><option>Accutrend</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs text-gray-500">Registros por fecha</span>
+              <button type="button" id="btn-nueva-quimica" class="text-sm font-semibold text-brandDark hover:underline">+ Agregar registro</button>
+            </div>
+            <div id="lista-quimica" class="space-y-2"></div>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-700 mb-2">Biometría hemática</p>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs text-gray-500">Registros por fecha</span>
+              <button type="button" id="btn-nueva-biometria" class="text-sm font-semibold text-brandDark hover:underline">+ Agregar registro</button>
+            </div>
+            <div id="lista-biometria" class="space-y-2"></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 12. Valoración dietética -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          12. Valoración dietética <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 grid md:grid-cols-3 gap-4">
+          <div class="campo"><label>¿Ha llevado dieta especial?</label><select data-field="dietetica.dietaEspecial"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo"><label>¿Cuántas veces?</label><input type="text" data-field="dietetica.cuantasVeces" /></div>
+          <div class="campo"><label>¿Por qué razón?</label><input type="text" data-field="dietetica.porQueRazon" /></div>
+          <div class="campo"><label>¿Qué tipo de dieta?</label><input type="text" data-field="dietetica.tipoDieta" /></div>
+          <div class="campo"><label>¿Por cuánto tiempo?</label><input type="text" data-field="dietetica.porCuantoTiempo" /></div>
+          <div class="campo"><label>¿Hace cuánto?</label><input type="text" data-field="dietetica.haceCuanto" /></div>
+          <div class="campo"><label>¿Fue constante?</label><select data-field="dietetica.fueConstante"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo"><label>¿Obtuvo resultados esperados?</label><select data-field="dietetica.obtuvoResultados"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo"><label>¿Usó medicamentos para bajar de peso?</label><select data-field="dietetica.usoMedicamentos"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo md:col-span-2"><label>¿Cuáles?</label><input type="text" data-field="dietetica.cualesMedicamentos" /></div>
+          <div class="campo"><label>¿Cuántas comidas al día?</label><input type="text" data-field="dietetica.comidasAlDia" /></div>
+          <div class="campo md:col-span-3"><label>¿Cuáles comidas?</label><textarea rows="2" data-field="dietetica.cualesComidas"></textarea></div>
+
+          <div class="md:col-span-3">
+            <p class="text-xs font-semibold text-gray-600 mb-2 mt-2">Frecuencia de comidas</p>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs border-collapse">
+                <thead><tr class="bg-gray-50 text-gray-500 uppercase text-left">
+                  <th class="px-2 py-2 border border-gray-100"></th>
+                  <th class="px-2 py-2 border border-gray-100">Tiempo (casa)</th>
+                  <th class="px-2 py-2 border border-gray-100">Horario (casa)</th>
+                  <th class="px-2 py-2 border border-gray-100">Tiempo (fuera)</th>
+                  <th class="px-2 py-2 border border-gray-100">Horario (fuera)</th>
+                </tr></thead>
+                <tbody>
+                  <tr>
+                    <td class="border border-gray-100 px-2 py-1.5 font-medium">Entre semana</td>
+                    <td class="border border-gray-100 p-1"><input type="text" data-field="dietetica.frecuenciaComidas.entreSemana.casaTiempo" /></td>
+                    <td class="border border-gray-100 p-1"><input type="text" data-field="dietetica.frecuenciaComidas.entreSemana.casaHorario" /></td>
+                    <td class="border border-gray-100 p-1"><input type="text" data-field="dietetica.frecuenciaComidas.entreSemana.fueraTiempo" /></td>
+                    <td class="border border-gray-100 p-1"><input type="text" data-field="dietetica.frecuenciaComidas.entreSemana.fueraHorario" /></td>
+                  </tr>
+                  <tr>
+                    <td class="border border-gray-100 px-2 py-1.5 font-medium">Fin de semana</td>
+                    <td class="border border-gray-100 p-1"><input type="text" data-field="dietetica.frecuenciaComidas.finDeSemana.casaTiempo" /></td>
+                    <td class="border border-gray-100 p-1"><input type="text" data-field="dietetica.frecuenciaComidas.finDeSemana.casaHorario" /></td>
+                    <td class="border border-gray-100 p-1"><input type="text" data-field="dietetica.frecuenciaComidas.finDeSemana.fueraTiempo" /></td>
+                    <td class="border border-gray-100 p-1"><input type="text" data-field="dietetica.frecuenciaComidas.finDeSemana.fueraHorario" /></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="campo md:col-span-3"><label>¿Quién prepara sus alimentos?</label><textarea rows="2" data-field="dietetica.quienPrepara"></textarea></div>
+          <div class="campo"><label>¿Come entre comidas?</label><select data-field="dietetica.comeEntreComidas"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo md:col-span-2"><label>¿Qué?</label><input type="text" data-field="dietetica.queComeEntreComidas" /></div>
+          <div class="campo"><label>¿Modificó alimentación (6 meses)?</label><select data-field="dietetica.modificoAlimentacion"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo"><label>¿Por qué?</label><input type="text" data-field="dietetica.porQueModifico" /></div>
+          <div class="campo"><label>¿Cómo?</label><input type="text" data-field="dietetica.comoModifico" /></div>
+          <div class="campo"><label>Apetito</label><input type="text" data-field="dietetica.apetito" /></div>
+          <div class="campo md:col-span-2"><label>¿A qué hora tiene más hambre?</label><input type="text" data-field="dietetica.horaMasHambre" /></div>
+          <div class="campo"><label>¿Consume agua natural regularmente?</label><select data-field="dietetica.consumeAgua"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo"><label>Litros o vasos al día</label><input type="text" data-field="dietetica.litrosAgua" /></div>
+          <div class="campo"><label>Frutas al día</label><input type="text" data-field="dietetica.frutasAlDia" /></div>
+          <div class="campo"><label>Verduras al día</label><input type="text" data-field="dietetica.verdurasAlDia" /></div>
+          <div class="campo"><label>Frituras/capeados/empanizados</label>
+            <select data-field="dietetica.frecFritos"><option value="">—</option><option>1 vez por semana</option><option>3 veces por semana</option><option>Diario</option><option>Casi no</option></select>
+          </div>
+          <div class="campo"><label>Dulces/chocolates/pan dulce</label>
+            <select data-field="dietetica.frecDulces"><option value="">—</option><option>1 vez por semana</option><option>3 veces por semana</option><option>Diario</option><option>Casi no</option></select>
+          </div>
+          <div class="campo"><label>Bebidas con azúcar</label>
+            <select data-field="dietetica.frecBebidasAzucar"><option value="">—</option><option>1 vez por semana</option><option>3 veces por semana</option><option>Diario</option><option>Casi no</option></select>
+          </div>
+          <div class="campo"><label>¿Toma suplemento/complemento?</label><select data-field="dietetica.tomaSuplemento"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo md:col-span-2"><label>¿Cuál?</label><input type="text" data-field="dietetica.cualSuplemento" /></div>
+          <div class="campo md:col-span-1"><label>Alimentos preferidos</label><input type="text" data-field="dietetica.alimentosPreferidos" /></div>
+          <div class="campo md:col-span-2"><label>Alimentos que no le agradan</label><input type="text" data-field="dietetica.alimentosNoAgradan" /></div>
+          <div class="campo"><label>¿Varía con tristeza/nervios/ansiedad?</label><select data-field="dietetica.variaConEmociones"><option value="">—</option><option>Sí</option><option>No</option></select></div>
+          <div class="campo md:col-span-2"><label>¿Cómo?</label><input type="text" data-field="dietetica.comoVaria" /></div>
+        </div>
+      </details>
+
+      <!-- 13. Recordatorio de 24 horas -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          13. Registro de consumo — Recordatorio de 24 horas <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5">
+          <div id="tabla-recordatorio24h" class="overflow-x-auto"></div>
+          <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="campo"><label>Consumo total HCO (g)</label><input type="text" data-field="recordatorio24hTotales.hco" /></div>
+            <div class="campo"><label>Consumo total Proteínas (g)</label><input type="text" data-field="recordatorio24hTotales.proteinas" /></div>
+            <div class="campo"><label>Consumo total Lípidos (g)</label><input type="text" data-field="recordatorio24hTotales.lipidos" /></div>
+            <div class="campo"><label>Consumo total Kcal</label><input type="text" data-field="recordatorio24hTotales.kcal" /></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- 14. Análisis de la dieta habitual -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          14. Análisis de la dieta habitual <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 overflow-x-auto">
+          <table class="w-full text-xs border-collapse">
+            <thead><tr class="bg-gray-50 text-gray-500 uppercase text-left">
+              <th class="px-2 py-2 border border-gray-100"></th>
+              <th class="px-2 py-2 border border-gray-100">Porcentaje (%)</th>
+              <th class="px-2 py-2 border border-gray-100">Kcal</th>
+              <th class="px-2 py-2 border border-gray-100">Gramos (g)</th>
+              <th class="px-2 py-2 border border-gray-100">g/kg peso/día</th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Hidratos de carbono</td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.hco.porcentaje" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.hco.kcal" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.hco.gramos" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.hco.gPorKg" /></td></tr>
+              <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Proteínas</td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.proteinas.porcentaje" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.proteinas.kcal" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.proteinas.gramos" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.proteinas.gPorKg" /></td></tr>
+              <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Lípidos</td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.lipidos.porcentaje" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.lipidos.kcal" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.lipidos.gramos" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.lipidos.gPorKg" /></td></tr>
+              <tr class="bg-gray-50"><td class="border border-gray-100 px-2 py-1.5 font-bold">TOTALES</td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.totales.porcentaje" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.totales.kcal" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.totales.gramos" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="analisisDieta.totales.gPorKg" /></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <!-- 15. Necesidades energéticas -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          15. Necesidades energéticas y nutrimentales <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 space-y-4">
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="campo"><label>Peso ideal seleccionado (kg)</label><input type="text" data-field="necesidadesEnergeticas.pesoIdealSeleccionado" /></div>
+            <div class="campo"><label>Metabolismo basal (kcal)</label><input type="text" data-field="necesidadesEnergeticas.metabolismoBasal" /></div>
+            <div class="campo"><label>AF (kcal)</label><input type="text" data-field="necesidadesEnergeticas.af" /></div>
+            <div class="campo"><label>Total GET/día (kcal)</label><input type="text" data-field="necesidadesEnergeticas.total" /></div>
+            <div class="campo md:col-span-2"><label>Fórmula utilizada</label><input type="text" data-field="necesidadesEnergeticas.formulaUtilizada" /></div>
+          </div>
+          <div class="campo"><label>Justificación de la metodología</label><textarea rows="2" data-field="necesidadesEnergeticas.justificacion"></textarea></div>
+          <div class="campo"><label>Desarrollo del cálculo</label><textarea rows="3" data-field="necesidadesEnergeticas.desarrolloCalculo"></textarea></div>
+
+          <p class="text-xs font-semibold text-gray-600">Cálculo del requerimiento por nutrimento</p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs border-collapse">
+              <thead><tr class="bg-gray-50 text-gray-500 uppercase text-left">
+                <th class="px-2 py-2 border border-gray-100"></th>
+                <th class="px-2 py-2 border border-gray-100">Porcentaje (%)</th>
+                <th class="px-2 py-2 border border-gray-100">Kcal</th>
+                <th class="px-2 py-2 border border-gray-100">Gramos (g)</th>
+                <th class="px-2 py-2 border border-gray-100">g/kg peso/día</th>
+              </tr></thead>
+              <tbody>
+                <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Hidratos de carbono</td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.hco.porcentaje" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.hco.kcal" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.hco.gramos" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.hco.gPorKg" /></td></tr>
+                <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Proteínas</td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.proteinas.porcentaje" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.proteinas.kcal" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.proteinas.gramos" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.proteinas.gPorKg" /></td></tr>
+                <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Lípidos</td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.lipidos.porcentaje" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.lipidos.kcal" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.lipidos.gramos" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.lipidos.gPorKg" /></td></tr>
+                <tr class="bg-gray-50"><td class="border border-gray-100 px-2 py-1.5 font-bold">TOTALES</td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.totales.porcentaje" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.totales.kcal" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.totales.gramos" /></td>
+                  <td class="border border-gray-100 p-1"><input type="text" data-field="necesidadesEnergeticas.requerimiento.totales.gPorKg" /></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+
+      <!-- 16. Evaluación de la dieta habitual -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          16. Evaluación de la dieta habitual <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 overflow-x-auto">
+          <p class="text-xs text-gray-400 mb-2">% de adecuación = (Consumo actual / Requerimiento) × 100%</p>
+          <table class="w-full text-xs border-collapse">
+            <thead><tr class="bg-gray-50 text-gray-500 uppercase text-left">
+              <th class="px-2 py-2 border border-gray-100"></th>
+              <th class="px-2 py-2 border border-gray-100">Dieta habitual</th>
+              <th class="px-2 py-2 border border-gray-100">Requerimiento</th>
+              <th class="px-2 py-2 border border-gray-100">% adecuación</th>
+              <th class="px-2 py-2 border border-gray-100">Diagnóstico</th>
+            </tr></thead>
+            <tbody>
+              <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Energía</td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.energia.dietaHabitual" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.energia.requerimiento" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.energia.porcentajeAdecuacion" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.energia.diagnostico" /></td></tr>
+              <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Hidratos de carbono</td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.hco.dietaHabitual" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.hco.requerimiento" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.hco.porcentajeAdecuacion" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.hco.diagnostico" /></td></tr>
+              <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Proteínas</td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.proteinas.dietaHabitual" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.proteinas.requerimiento" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.proteinas.porcentajeAdecuacion" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.proteinas.diagnostico" /></td></tr>
+              <tr><td class="border border-gray-100 px-2 py-1.5 font-medium">Lípidos</td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.lipidos.dietaHabitual" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.lipidos.requerimiento" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.lipidos.porcentajeAdecuacion" /></td>
+                <td class="border border-gray-100 p-1"><input type="text" data-field="evaluacionDietaHabitual.lipidos.diagnostico" /></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <!-- 17. Diagnósticos nutricionales PES -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          17. Intervención nutricional — Diagnósticos (formato PES) <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5">
+          <div id="tabla-diagnosticos-pes" class="overflow-x-auto"></div>
+        </div>
+      </details>
+
+      <!-- 18. Cálculo del plan de alimentación (SMAE) -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          18. Cálculo del plan de alimentación (Sistema Mexicano de Equivalentes) <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5">
+          <div id="tabla-plan-alimentacion" class="overflow-x-auto"></div>
+        </div>
+      </details>
+
+      <!-- 19. Cálculo de raciones diarias -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          19. Cálculo de raciones diarias <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5 space-y-4">
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div class="campo"><label>Horario desayuno</label><input type="text" data-field="racionesDiarias.horarioDesayuno" /></div>
+            <div class="campo"><label>Horario colación 1</label><input type="text" data-field="racionesDiarias.horarioColacion1" /></div>
+            <div class="campo"><label>Horario comida</label><input type="text" data-field="racionesDiarias.horarioComida" /></div>
+            <div class="campo"><label>Horario colación 2</label><input type="text" data-field="racionesDiarias.horarioColacion2" /></div>
+            <div class="campo"><label>Horario cena</label><input type="text" data-field="racionesDiarias.horarioCena" /></div>
+          </div>
+          <div id="tabla-raciones-diarias" class="overflow-x-auto"></div>
+        </div>
+      </details>
+
+      <!-- 20. Tratamiento nutricional -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          20. Tratamiento nutricional <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5">
+          <div id="tabla-tratamiento" class="overflow-x-auto"></div>
+        </div>
+      </details>
+
+      <!-- 21. Notas clínicas SOAP -->
+      <details class="seccion bg-white rounded-2xl shadow p-6">
+        <summary class="flex items-center justify-between font-bold text-gray-900">
+          21. Notas clínicas de seguimiento (formato SOAP) <span class="chevron transition-transform text-gray-400">▶</span>
+        </summary>
+        <div class="mt-5">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs text-gray-500">Cada nota queda registrada con fecha y número de seguimiento</span>
+            <button type="button" id="btn-nueva-soap" class="text-sm font-semibold text-brandDark hover:underline">+ Agregar nota</button>
+          </div>
+          <div id="lista-soap" class="space-y-2"></div>
+        </div>
+      </details>
+
+    </form>
+  </main>
+
+  <!-- Modal genérico para registros de evaluación (antropometría, química, biometría, SOAP) -->
+  <div id="modal-registro" class="hidden fixed inset-0 bg-black/50 flex items-start justify-center px-6 py-10 z-50 overflow-y-auto">
+    <form id="form-registro" class="bg-white rounded-3xl shadow-2xl p-8 w-full max-w-3xl space-y-5 my-auto">
+      <h2 id="modal-registro-titulo" class="text-xl font-extrabold text-gray-900"></h2>
+      <div id="modal-registro-contenido" class="space-y-5"></div>
+      <div class="flex gap-3 pt-2">
+        <button type="button" id="btn-cancelar-registro" class="flex-1 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold py-2.5">Cancelar</button>
+        <button type="submit" class="flex-1 rounded-xl bg-green-500 hover:bg-green-400 text-brandDark font-bold py-2.5">Guardar</button>
+      </div>
+    </form>
+  </div>
+
+  <script type="module" src="js/admin/historia.js"></script>
+</body>
+</html>
