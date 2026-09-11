@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi plan | Nutripulso</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brandDark: '#0F3D2E', brandLight: '#A7E071' },
+          fontFamily: { sans: ['Montserrat', 'ui-sans-serif', 'system-ui'] },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-gray-50 text-gray-700 antialiased">
+
+  <!-- ============ NAV USUARIO ============ -->
+  <header class="bg-white shadow-sm">
+    <nav class="max-w-5xl mx-auto flex items-center justify-between px-6 py-4">
+      <a href="index.html" class="flex items-center gap-2.5 font-extrabold text-brandDark">
+        <svg viewBox="0 0 48 48" class="h-8 w-8" aria-hidden="true">
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#0F3D2E" /><stop offset="100%" stop-color="#22C55E" />
+            </linearGradient>
+          </defs>
+          <path d="M8 40V8h7l17 22V8h8v32h-7L16 18v22H8z" fill="url(#logoGradient)" />
+        </svg>
+        Nutripulso
+      </a>
+      <ul class="hidden md:flex items-center gap-6 text-sm font-semibold text-gray-500">
+        <li><a href="usuario-dashboard.html" class="text-brandDark">Mi plan</a></li>
+        <li><a href="usuario-citas.html" class="hover:text-brandDark">Mis citas</a></li>
+        <li><a href="usuario-perfil.html" class="hover:text-brandDark">Mi perfil</a></li>
+      </ul>
+      <div class="flex items-center gap-4 text-sm">
+        <span id="nombre-usuario" class="hidden sm:inline text-gray-400"></span>
+        <button id="btn-logout" class="rounded-full bg-gray-100 hover:bg-gray-200 px-4 py-2 font-semibold transition-colors">
+          Cerrar sesión
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-10">
+    <h1 class="text-2xl font-extrabold text-gray-900">Mi plan</h1>
+    <p class="mt-1 text-gray-500 text-sm">Aquí verás el plan de nutrición que tu especialista te asigne.</p>
+
+    <div id="contenedor-plan" class="mt-8">
+      <p class="text-gray-400">Cargando tu plan...</p>
+    </div>
+  </main>
+
+  <script type="module" src="js/usuario/dashboard.js"></script>
+</body>
+</html>

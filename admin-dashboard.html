@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usuarios | Panel admin Nutripulso</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brandDark: '#0F3D2E', brandLight: '#A7E071' },
+          fontFamily: { sans: ['Montserrat', 'ui-sans-serif', 'system-ui'] },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-gray-50 text-gray-700 antialiased">
+
+  <!-- ============ NAV ADMIN ============ -->
+  <header class="bg-brandDark text-white">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <a href="index.html" class="flex items-center gap-2.5 font-extrabold">
+        <svg viewBox="0 0 48 48" class="h-8 w-8" aria-hidden="true">
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#A7E071" /><stop offset="100%" stop-color="#22C55E" />
+            </linearGradient>
+          </defs>
+          <path d="M8 40V8h7l17 22V8h8v32h-7L16 18v22H8z" fill="url(#logoGradient)" />
+        </svg>
+        Nutripulso <span class="text-green-400 font-semibold">· Admin</span>
+      </a>
+      <ul class="hidden md:flex items-center gap-6 text-sm font-semibold text-white/70">
+        <li><a href="admin-dashboard.html" class="text-white">Usuarios</a></li>
+        <li><a href="admin-planes.html" class="hover:text-white">Planes</a></li>
+        <li><a href="admin-agenda.html" class="hover:text-white">Agenda</a></li>
+        <li><a href="admin-recetas.html" class="hover:text-white">Recetas</a></li>
+      </ul>
+      <div class="flex items-center gap-4 text-sm">
+        <span id="nombre-admin" class="hidden sm:inline text-white/70"></span>
+        <button id="btn-logout" class="rounded-full bg-white/10 hover:bg-white/20 px-4 py-2 font-semibold transition-colors">
+          Cerrar sesión
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-6 py-10">
+    <h1 class="text-2xl font-extrabold text-gray-900">Usuarios registrados</h1>
+    <p class="mt-1 text-gray-500 text-sm">Gestiona roles y asigna un plan a cada persona.</p>
+
+    <div class="mt-8 bg-white rounded-3xl shadow-lg overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 text-left uppercase text-xs">
+          <tr>
+            <th class="px-6 py-4">Nombre</th>
+            <th class="px-6 py-4">Correo</th>
+            <th class="px-6 py-4">Rol</th>
+            <th class="px-6 py-4">Plan asignado</th>
+            <th class="px-6 py-4"></th>
+          </tr>
+        </thead>
+        <tbody id="tabla-usuarios" class="divide-y divide-gray-100">
+          <tr><td colspan="5" class="px-6 py-8 text-center text-gray-400">Cargando usuarios...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="mt-4 text-xs text-gray-400">
+      Nota: eliminar un usuario aquí borra su perfil, pero la cuenta de acceso (Firebase Auth)
+      debe eliminarse desde la consola de Firebase o con una Cloud Function.
+    </p>
+  </main>
+
+  <script type="module" src="js/admin/usuarios.js"></script>
+</body>
+</html>
