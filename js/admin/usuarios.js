@@ -1,4 +1,5 @@
 import { protegerPagina, cerrarSesion } from "../auth.js";
+import { aplicarModulosNav } from "../negocio-nav.js";
 import { db } from "../firebase-config.js";
 import {
   collection,
@@ -33,6 +34,7 @@ protegerPagina(["admin"], async (user, perfil) => {
   }
 
   mostrarLinkRegistro(perfil.negocioId);
+  await aplicarModulosNav(perfil.negocioId);
   await cargarUsuarios(perfil.negocioId);
 });
 
@@ -61,6 +63,12 @@ document.getElementById("form-configurar-negocio").addEventListener("submit", as
 
   const negocioRef = await addDoc(collection(db, "negocios"), {
     nombre: nombreNegocio,
+    telefono: "",
+    correoContacto: "",
+    direccion: "",
+    descripcion: "",
+    colorAcento: "#22C55E",
+    modulos: { agenda: true, recetas: true, historias: true },
     creadoPor: uidAdmin,
     creadoEn: new Date().toISOString(),
   });

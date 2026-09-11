@@ -1,3 +1,4 @@
+import { aplicarModulosNav } from "../negocio-nav.js";
 import { protegerPagina, cerrarSesion } from "../auth.js";
 import { db } from "../firebase-config.js";
 import {
@@ -23,6 +24,7 @@ document.getElementById("btn-logout").addEventListener("click", async () => {
 protegerPagina(["usuario", "admin"], async (user, perfil) => {
   usuarioActual = { uid: user.uid, nombre: perfil.nombre, negocioId: perfil.negocioId || null };
   nombreUsuario.textContent = `Hola, ${perfil.nombre}`;
+  await aplicarModulosNav(perfil.negocioId);
   await cargarCitas();
 });
 

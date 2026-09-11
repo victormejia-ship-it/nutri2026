@@ -1,3 +1,4 @@
+import { aplicarModulosNav } from "../negocio-nav.js";
 import { protegerPagina, cerrarSesion } from "../auth.js";
 import { db } from "../firebase-config.js";
 import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
@@ -126,6 +127,7 @@ function renderLista(key, historia) {
 
 protegerPagina(["usuario", "admin"], async (user, perfil) => {
   nombreUsuario.textContent = `Hola, ${perfil.nombre}`;
+  await aplicarModulosNav(perfil.negocioId);
 
   const historiaSnap = await getDoc(doc(db, "historias", user.uid));
 

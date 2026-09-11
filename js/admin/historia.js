@@ -1,4 +1,5 @@
 import { protegerPagina, cerrarSesion } from "../auth.js";
+import { aplicarModulosNav } from "../negocio-nav.js";
 import { db } from "../firebase-config.js";
 import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import { crearTablaEditable } from "../tabla-editable.js";
@@ -132,6 +133,7 @@ protegerPagina(["admin"], async (user, perfil) => {
   if (!requerirNegocio(perfil)) return;
   negocioId = perfil.negocioId;
   nombreAdmin.textContent = `Hola, ${perfil.nombre}`;
+  await aplicarModulosNav(negocioId);
 
   const pacienteSnap = await getDoc(doc(db, "users", uid));
   if (!pacienteSnap.exists()) {

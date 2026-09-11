@@ -1,4 +1,5 @@
 import { protegerPagina, cerrarSesion } from "../auth.js";
+import { aplicarModulosNav } from "../negocio-nav.js";
 import { db } from "../firebase-config.js";
 import { requerirNegocio } from "./negocio-guard.js";
 import {
@@ -23,6 +24,7 @@ protegerPagina(["admin"], async (user, perfil) => {
   if (!requerirNegocio(perfil)) return;
   negocioId = perfil.negocioId;
   nombreAdmin.textContent = `Hola, ${perfil.nombre}`;
+  await aplicarModulosNav(negocioId);
   await cargarCitas();
 });
 

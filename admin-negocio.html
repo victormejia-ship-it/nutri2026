@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mi negocio | Panel admin Nutripulso</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brandDark: '#0F3D2E', brandLight: '#A7E071' },
+          fontFamily: { sans: ['Montserrat', 'ui-sans-serif', 'system-ui'] },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-gray-50 text-gray-700 antialiased">
+
+  <header class="bg-brandDark text-white">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <a href="index.html" class="flex items-center gap-2.5 font-extrabold">
+        <svg viewBox="0 0 48 48" class="h-8 w-8" aria-hidden="true">
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#A7E071" /><stop offset="100%" stop-color="#22C55E" />
+            </linearGradient>
+          </defs>
+          <path d="M8 40V8h7l17 22V8h8v32h-7L16 18v22H8z" fill="url(#logoGradient)" />
+        </svg>
+        Nutripulso <span class="text-green-400 font-semibold">· Admin</span>
+      </a>
+      <ul class="hidden md:flex items-center gap-6 text-sm font-semibold text-white/70">
+        <li><a href="admin-dashboard.html" class="hover:text-white">Usuarios</a></li>
+        <li><a href="admin-planes.html" class="hover:text-white">Planes</a></li>
+        <li data-modulo="agenda"><a href="admin-agenda.html" class="hover:text-white">Agenda</a></li>
+        <li data-modulo="recetas"><a href="admin-recetas.html" class="hover:text-white">Recetas</a></li>
+        <li><a href="admin-negocio.html" class="text-white">Mi negocio</a></li>
+      </ul>
+      <div class="flex items-center gap-4 text-sm">
+        <span id="nombre-admin" class="hidden sm:inline text-white/70"></span>
+        <button id="btn-logout" class="rounded-full bg-white/10 hover:bg-white/20 px-4 py-2 font-semibold transition-colors">
+          Cerrar sesión
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-6 py-10">
+    <h1 class="text-2xl font-extrabold text-gray-900">Mi negocio</h1>
+    <p class="mt-1 text-gray-500 text-sm">Edita los datos de tu negocio y qué módulos usas dentro de la plataforma.</p>
+
+    <form id="form-negocio" class="mt-8 bg-white rounded-3xl shadow-lg p-8 space-y-5">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nombre del negocio</label>
+        <input type="text" id="negocio-nombre" required class="w-full rounded-xl border border-gray-200 px-4 py-2.5" />
+      </div>
+      <div class="grid md:grid-cols-2 gap-5">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Teléfono</label>
+          <input type="tel" id="negocio-telefono" class="w-full rounded-xl border border-gray-200 px-4 py-2.5" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-1.5">Correo de contacto</label>
+          <input type="email" id="negocio-correo" class="w-full rounded-xl border border-gray-200 px-4 py-2.5" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Dirección</label>
+        <input type="text" id="negocio-direccion" class="w-full rounded-xl border border-gray-200 px-4 py-2.5" />
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Descripción</label>
+        <textarea id="negocio-descripcion" rows="3" class="w-full rounded-xl border border-gray-200 px-4 py-2.5"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Color de marca</label>
+        <input type="color" id="negocio-color" class="h-11 w-20 rounded-lg border border-gray-200 cursor-pointer" />
+      </div>
+
+      <div class="pt-2 border-t border-gray-100">
+        <p class="font-semibold text-gray-900 mb-1">Módulos activos</p>
+        <p class="text-xs text-gray-400 mb-3">Usuarios y Planes siempre están activos. Desactiva lo que no uses para simplificar tu panel.</p>
+        <div class="space-y-2 text-sm">
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="modulo-agenda" /> Agenda de citas
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="modulo-recetas" /> Recetas y blog
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="modulo-historias" /> Historia clínica
+          </label>
+        </div>
+      </div>
+
+      <p id="negocio-mensaje" class="hidden text-sm font-medium text-brandDark"></p>
+
+      <button type="submit" class="w-full rounded-xl bg-green-500 hover:bg-green-400 text-brandDark font-bold py-3 transition-colors">
+        Guardar cambios
+      </button>
+    </form>
+  </main>
+
+  <script type="module" src="js/admin/negocio.js"></script>
+</body>
+</html>

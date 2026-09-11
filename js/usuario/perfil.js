@@ -1,3 +1,4 @@
+import { aplicarModulosNav } from "../negocio-nav.js";
 import { protegerPagina, cerrarSesion, traducirErrorAuth } from "../auth.js";
 import { auth, db } from "../firebase-config.js";
 import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
@@ -16,9 +17,10 @@ document.getElementById("btn-logout").addEventListener("click", async () => {
   window.location.href = "login.html";
 });
 
-protegerPagina(["usuario", "admin"], (user, perfil) => {
+protegerPagina(["usuario", "admin"], async (user, perfil) => {
   uidActual = user.uid;
   nombreUsuario.textContent = `Hola, ${perfil.nombre}`;
+  await aplicarModulosNav(perfil.negocioId);
   document.getElementById("perfil-nombre").value = perfil.nombre || "";
   document.getElementById("perfil-email").value = perfil.email || "";
   document.getElementById("perfil-telefono").value = perfil.telefono || "";

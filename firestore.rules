@@ -26,7 +26,8 @@ service cloud.firestore {
     match /negocios/{negocioId} {
       allow read: if true;
       allow create: if isSignedIn() && request.resource.data.creadoPor == request.auth.uid;
-      allow update, delete: if isSignedIn() && resource.data.creadoPor == request.auth.uid;
+      allow update: if esAdminDelNegocio(negocioId);
+      allow delete: if isSignedIn() && resource.data.creadoPor == request.auth.uid;
     }
 
     // Perfiles de usuario. El rol nunca puede modificarse desde el propio

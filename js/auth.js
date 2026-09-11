@@ -42,6 +42,12 @@ export async function registrarNegocio(nombreNegocio, nombreAdmin, email, passwo
 
   const negocioRef = await addDoc(collection(db, "negocios"), {
     nombre: nombreNegocio,
+    telefono: "",
+    correoContacto: email,
+    direccion: "",
+    descripcion: "",
+    colorAcento: "#22C55E",
+    modulos: { agenda: true, recetas: true, historias: true },
     creadoPor: credencial.user.uid,
     creadoEn: new Date().toISOString(),
   });
