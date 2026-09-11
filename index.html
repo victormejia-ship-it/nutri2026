@@ -63,7 +63,7 @@
         <a href="login.html" class="font-semibold text-gray-600 hover:text-green-600 transition-colors">
           Iniciar sesión
         </a>
-        <a href="registro.html" class="inline-flex items-center rounded-full bg-green-500 hover:bg-green-400 text-brandDark font-bold px-5 py-2.5 shadow-lg shadow-green-500/30 transition-colors">
+        <a href="registro.html" data-registro-link class="inline-flex items-center rounded-full bg-green-500 hover:bg-green-400 text-brandDark font-bold px-5 py-2.5 shadow-lg shadow-green-500/30 transition-colors">
           Regístrate
         </a>
       </div>
@@ -87,7 +87,7 @@
           <a href="login.html" class="flex-1 inline-flex items-center justify-center rounded-full border-2 border-brandDark text-brandDark font-semibold px-5 py-2.5">
             Iniciar sesión
           </a>
-          <a href="registro.html" class="flex-1 inline-flex items-center justify-center rounded-full bg-green-500 text-brandDark font-bold px-5 py-2.5">
+          <a href="registro.html" data-registro-link class="flex-1 inline-flex items-center justify-center rounded-full bg-green-500 text-brandDark font-bold px-5 py-2.5">
             Regístrate
           </a>
         </li>
@@ -444,10 +444,16 @@
         <p class="text-sm text-gray-500">© 2026 Nutripulso. Todos los derechos reservados.</p>
         <p class="italic text-green-400 font-medium">Good Food, Greater Results</p>
       </div>
+
+      <p class="mt-4 text-center text-xs text-gray-500">
+        ¿Eres nutriólogo o tienes una clínica?
+        <a href="registro-negocio.html" class="text-green-400 font-semibold hover:underline">Crea tu propio negocio en Nutripulso →</a>
+      </p>
     </div>
   </footer>
 
   <script src="js/script.js"></script>
   <script type="module" src="js/planes-publicos.js"></script>
+  <script type="module" src="js/registro-link.js"></script>
 </body>
 </html>

@@ -1,8 +1,11 @@
 import { protegerPagina, cerrarSesion } from "../auth.js";
 import { db } from "../firebase-config.js";
+import { requerirNegocio } from "./negocio-guard.js";
 import {
   collection,
   getDocs,
+  query,
+  where,
   doc,
   addDoc,
   updateDoc,
@@ -13,6 +16,7 @@ const lista = document.getElementById("lista-planes");
 const nombreAdmin = document.getElementById("nombre-admin");
 const modal = document.getElementById("modal-plan");
 const form = document.getElementById("form-plan");
+let negocioId = null;
 
 document.getElementById("btn-logout").addEventListener("click", async () => {
   await cerrarSesion();
@@ -20,6 +24,8 @@ document.getElementById("btn-logout").addEventListener("click", async () => {
 });
 
 protegerPagina(["admin"], async (user, perfil) => {
+  if (!requerirNegocio(perfil)) return;
+  negocioId = perfil.negocioId;
   nombreAdmin.textContent = `Hola, ${perfil.nombre}`;
   await cargarPlanes();
 });
@@ -55,6 +61,7 @@ form.addEventListener("submit", async (event) => {
       .split("\n").map((f) => f.trim()).filter(Boolean),
     enlacePago: document.getElementById("plan-enlace-pago").value.trim(),
     destacado: document.getElementById("plan-destacado").checked,
+    negocioId,
   };
 
   if (id) {
@@ -68,7 +75,7 @@ form.addEventListener("submit", async (event) => {
 });
 
 async function cargarPlanes() {
-  const snap = await getDocs(collection(db, "planes"));
+  const snap = await getDocs(query(collection(db, "planes"), where("negocioId", "==", negocioId)));
 
   if (snap.empty) {
     lista.innerHTML = `<p class="text-gray-400 col-span-3">Aún no hay planes. Crea el primero con "+ Nuevo plan".</p>`;

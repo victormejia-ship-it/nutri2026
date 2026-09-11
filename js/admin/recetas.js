@@ -1,20 +1,22 @@
 import { protegerPagina, cerrarSesion } from "../auth.js";
 import { db } from "../firebase-config.js";
+import { requerirNegocio } from "./negocio-guard.js";
 import {
   collection,
   getDocs,
+  query,
+  where,
   doc,
   addDoc,
   updateDoc,
   deleteDoc,
-  orderBy,
-  query,
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const lista = document.getElementById("lista-recetas");
 const nombreAdmin = document.getElementById("nombre-admin");
 const modal = document.getElementById("modal-receta");
 const form = document.getElementById("form-receta");
+let negocioId = null;
 
 document.getElementById("btn-logout").addEventListener("click", async () => {
   await cerrarSesion();
@@ -22,6 +24,8 @@ document.getElementById("btn-logout").addEventListener("click", async () => {
 });
 
 protegerPagina(["admin"], async (user, perfil) => {
+  if (!requerirNegocio(perfil)) return;
+  negocioId = perfil.negocioId;
   nombreAdmin.textContent = `Hola, ${perfil.nombre}`;
   await cargarRecetas();
 });
@@ -50,6 +54,7 @@ form.addEventListener("submit", async (event) => {
     titulo: document.getElementById("receta-titulo").value.trim(),
     categoria: document.getElementById("receta-categoria").value.trim(),
     contenido: document.getElementById("receta-contenido").value.trim(),
+    negocioId,
     creadoEn: new Date().toISOString(),
   };
 
@@ -64,16 +69,19 @@ form.addEventListener("submit", async (event) => {
 });
 
 async function cargarRecetas() {
-  const snap = await getDocs(query(collection(db, "recetas"), orderBy("creadoEn", "desc")));
+  const snap = await getDocs(query(collection(db, "recetas"), where("negocioId", "==", negocioId)));
 
   if (snap.empty) {
     lista.innerHTML = `<p class="text-gray-400 col-span-3">Aún no hay recetas. Crea la primera con "+ Nueva receta".</p>`;
     return;
   }
 
+  const recetas = snap.docs
+    .map((d) => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (b.creadoEn || "").localeCompare(a.creadoEn || ""));
+
   lista.innerHTML = "";
-  snap.forEach((docSnap) => {
-    const r = { id: docSnap.id, ...docSnap.data() };
+  recetas.forEach((r) => {
     const tarjeta = document.createElement("div");
     tarjeta.className = "bg-white rounded-3xl shadow-lg p-6 flex flex-col";
     tarjeta.innerHTML = `

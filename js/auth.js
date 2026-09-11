@@ -11,24 +11,58 @@ import {
   doc,
   setDoc,
   getDoc,
+  addDoc,
+  collection,
 } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
-// Todo registro público crea un usuario con rol "usuario".
-// El primer administrador se promueve manualmente en Firestore
-// (colección "users" → documento del uid → cambiar role a "admin").
-export async function registrarUsuario(nombre, email, password) {
+// Registro de un paciente: siempre queda ligado a un negocio (nutriólogo/
+// clínica) existente — se registra a través del link que ese negocio
+// comparte (registro.html?negocio=<id>).
+export async function registrarUsuario(nombre, email, password, negocioId) {
   const credencial = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(credencial.user, { displayName: nombre });
   await setDoc(doc(db, "users", credencial.user.uid), {
     nombre,
     email,
     role: "usuario",
+    negocioId,
     telefono: "",
     objetivo: "",
     planAsignado: null,
     creadoEn: new Date().toISOString(),
   });
   return credencial.user;
+}
+
+// Registro de un negocio nuevo (nutriólogo/clínica): crea el documento del
+// negocio y, en el mismo flujo, la cuenta de su administrador.
+export async function registrarNegocio(nombreNegocio, nombreAdmin, email, password) {
+  const credencial = await createUserWithEmailAndPassword(auth, email, password);
+  await updateProfile(credencial.user, { displayName: nombreAdmin });
+
+  const negocioRef = await addDoc(collection(db, "negocios"), {
+    nombre: nombreNegocio,
+    creadoPor: credencial.user.uid,
+    creadoEn: new Date().toISOString(),
+  });
+
+  await setDoc(doc(db, "users", credencial.user.uid), {
+    nombre: nombreAdmin,
+    email,
+    role: "admin",
+    negocioId: negocioRef.id,
+    telefono: "",
+    objetivo: "",
+    planAsignado: null,
+    creadoEn: new Date().toISOString(),
+  });
+
+  return { user: credencial.user, negocioId: negocioRef.id };
+}
+
+export async function obtenerNegocio(negocioId) {
+  const snap = await getDoc(doc(db, "negocios", negocioId));
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 }
 
 export function iniciarSesion(email, password) {

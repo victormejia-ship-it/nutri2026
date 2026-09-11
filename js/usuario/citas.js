@@ -21,7 +21,7 @@ document.getElementById("btn-logout").addEventListener("click", async () => {
 });
 
 protegerPagina(["usuario", "admin"], async (user, perfil) => {
-  usuarioActual = { uid: user.uid, nombre: perfil.nombre };
+  usuarioActual = { uid: user.uid, nombre: perfil.nombre, negocioId: perfil.negocioId || null };
   nombreUsuario.textContent = `Hola, ${perfil.nombre}`;
   await cargarCitas();
 });
@@ -31,6 +31,7 @@ form.addEventListener("submit", async (event) => {
   await addDoc(collection(db, "citas"), {
     usuarioId: usuarioActual.uid,
     nombreUsuario: usuarioActual.nombre,
+    negocioId: usuarioActual.negocioId,
     fecha: document.getElementById("cita-fecha").value,
     hora: document.getElementById("cita-hora").value,
     motivo: document.getElementById("cita-motivo").value.trim(),

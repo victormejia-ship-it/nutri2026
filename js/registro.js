@@ -1,8 +1,30 @@
-import { registrarUsuario, traducirErrorAuth } from "./auth.js";
+import { registrarUsuario, obtenerNegocio, traducirErrorAuth } from "./auth.js";
 
 const form = document.getElementById("form-registro");
 const errorMsg = document.getElementById("form-error");
 const btnSubmit = document.getElementById("btn-submit");
+const subtituloNegocio = document.getElementById("subtitulo-negocio");
+const avisoInvalido = document.getElementById("aviso-enlace-invalido");
+
+const negocioId = new URLSearchParams(location.search).get("negocio");
+
+(async () => {
+  if (!negocioId) {
+    mostrarEnlaceInvalido();
+    return;
+  }
+  const negocio = await obtenerNegocio(negocioId);
+  if (!negocio) {
+    mostrarEnlaceInvalido();
+    return;
+  }
+  subtituloNegocio.textContent = `Te estás registrando con ${negocio.nombre}.`;
+})();
+
+function mostrarEnlaceInvalido() {
+  avisoInvalido.classList.remove("hidden");
+  form.classList.add("hidden");
+}
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -23,7 +45,7 @@ form.addEventListener("submit", async (event) => {
   btnSubmit.textContent = "Creando cuenta...";
 
   try {
-    await registrarUsuario(nombre, email, password);
+    await registrarUsuario(nombre, email, password, negocioId);
     window.location.href = "usuario-dashboard.html";
   } catch (error) {
     errorMsg.textContent = traducirErrorAuth(error.code);

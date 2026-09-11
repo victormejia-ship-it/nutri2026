@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Crear cuenta | Nutripulso</title>
+  <title>Crea tu negocio en Nutripulso</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -24,7 +24,7 @@
 </head>
 <body class="bg-brandDark min-h-screen flex items-center justify-center px-6 py-12">
 
-  <div class="w-full max-w-md">
+  <div class="w-full max-w-lg">
     <a href="index.html" class="flex items-center justify-center gap-2.5 text-xl font-extrabold text-white mb-8">
       <svg viewBox="0 0 48 48" class="h-9 w-9" aria-hidden="true">
         <defs>
@@ -39,18 +39,23 @@
     </a>
 
     <div class="bg-white rounded-3xl shadow-2xl p-8">
-      <h1 class="text-2xl font-extrabold text-gray-900">Crea tu cuenta</h1>
-      <p id="subtitulo-negocio" class="mt-2 text-sm text-gray-500">Empieza tu plan de nutrición personalizado hoy.</p>
+      <span class="inline-block bg-brandLight/30 text-brandDark font-semibold text-xs px-3 py-1 rounded-full mb-3 uppercase tracking-wide">
+        Para nutriólogos y clínicas
+      </span>
+      <h1 class="text-2xl font-extrabold text-gray-900">Crea tu negocio en Nutripulso</h1>
+      <p class="mt-2 text-sm text-gray-500">
+        Obtén tu propio panel para gestionar pacientes, planes, citas e historias clínicas — separado de cualquier otro negocio en la plataforma.
+      </p>
 
-      <div id="aviso-enlace-invalido" class="hidden bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm rounded-xl p-4 mb-4">
-        Este enlace de registro no es válido o está incompleto. Pide el link correcto a tu nutriólogo, o si tú eres el nutriólogo,
-        <a href="registro-negocio.html" class="font-semibold underline">crea tu negocio aquí</a>.
-      </div>
-
-      <form id="form-registro" class="mt-6 space-y-4">
+      <form id="form-negocio" class="mt-6 space-y-4">
         <div>
-          <label for="nombre" class="block text-sm font-semibold text-gray-700 mb-1.5">Nombre completo</label>
-          <input type="text" id="nombre" required autocomplete="name"
+          <label for="nombre-negocio" class="block text-sm font-semibold text-gray-700 mb-1.5">Nombre de tu negocio o clínica</label>
+          <input type="text" id="nombre-negocio" required placeholder="Ej. Consultorio Vida Sana"
+            class="w-full rounded-xl border border-gray-200 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-500" />
+        </div>
+        <div>
+          <label for="nombre-admin" class="block text-sm font-semibold text-gray-700 mb-1.5">Tu nombre</label>
+          <input type="text" id="nombre-admin" required autocomplete="name"
             class="w-full rounded-xl border border-gray-200 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-500" />
         </div>
         <div>
@@ -73,17 +78,18 @@
 
         <button type="submit" id="btn-submit"
           class="w-full inline-flex items-center justify-center rounded-xl bg-green-500 hover:bg-green-400 text-brandDark font-bold px-6 py-3 transition-colors">
-          Crear cuenta
+          Crear mi negocio
         </button>
       </form>
 
       <p class="mt-6 text-center text-sm text-gray-500">
-        ¿Ya tienes cuenta?
-        <a href="login.html" class="font-semibold text-brandDark hover:underline">Inicia sesión</a>
+        ¿Eres paciente? Pide el link de registro a tu nutriólogo — este formulario es para negocios nuevos.
+        <br />
+        ¿Ya tienes una cuenta de negocio? <a href="login.html" class="font-semibold text-brandDark hover:underline">Inicia sesión</a>
       </p>
     </div>
   </div>
 
-  <script type="module" src="js/registro.js"></script>
+  <script type="module" src="js/registro-negocio.js"></script>
 </body>
 </html>

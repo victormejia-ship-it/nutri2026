@@ -8,46 +8,72 @@ service cloud.firestore {
     function isOwner(uid) {
       return isSignedIn() && request.auth.uid == uid;
     }
-    function isAdmin() {
-      return isSignedIn() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    function perfilPropio() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    // Admin del negocio dueño del recurso. Incluye un puente de compatibilidad
+    // para documentos anteriores al modelo multi-negocio (sin negocioId): un
+    // admin puede "adoptarlos" una sola vez (quedan fijos a su negocio desde
+    // ese momento). negocioId puede venir ausente (usar .get(...,null) en
+    // cada punto de uso, nunca acceso directo, para no evaluar a error).
+    function esAdminDelNegocio(negocioId) {
+      return isSignedIn() && perfilPropio().role == 'admin' &&
+        (perfilPropio().get('negocioId', null) == negocioId || negocioId == null);
+    }
+
+    // Negocios (tenants). Lectura pública: el registro de pacientes necesita
+    // mostrar el nombre del negocio antes de que el paciente inicie sesión.
+    match /negocios/{negocioId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.creadoPor == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.creadoPor == request.auth.uid;
     }
 
     // Perfiles de usuario. El rol nunca puede modificarse desde el propio
-    // documento del usuario: solo un admin puede cambiarlo.
+    // documento del usuario: solo un admin puede cambiarlo. Un admin nuevo
+    // solo puede autoasignarse el rol si simultáneamente declara a qué
+    // negocio pertenece (creado por registro-negocio.html).
     match /users/{uid} {
-      allow read: if isOwner(uid) || isAdmin();
-      allow create: if isOwner(uid) && request.resource.data.role == 'usuario';
-      allow update: if isAdmin() ||
+      allow read: if isOwner(uid) || esAdminDelNegocio(resource.data.get('negocioId', null));
+      allow create: if isOwner(uid) && (
+        request.resource.data.role == 'usuario' ||
+        (request.resource.data.role == 'admin' && request.resource.data.negocioId is string && request.resource.data.negocioId.size() > 0)
+      );
+      allow update: if esAdminDelNegocio(resource.data.get('negocioId', null)) ||
         (isOwner(uid) && request.resource.data.role == resource.data.role);
-      allow delete: if isAdmin();
+      allow delete: if esAdminDelNegocio(resource.data.get('negocioId', null));
     }
 
-    // Planes: visibles para todos (landing pública), editables solo por admin.
+    // Planes: visibles para todos (landing pública), editables solo por el
+    // admin del negocio dueño del plan.
     match /planes/{planId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if esAdminDelNegocio(request.resource.data.get('negocioId', null));
+      allow update, delete: if esAdminDelNegocio(resource.data.get('negocioId', null));
     }
 
-    // Recetas/blog: visibles para todos, editables solo por admin.
+    // Recetas/blog: visibles para todos, editables solo por el admin del
+    // negocio dueño de la receta.
     match /recetas/{recetaId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if esAdminDelNegocio(request.resource.data.get('negocioId', null));
+      allow update, delete: if esAdminDelNegocio(resource.data.get('negocioId', null));
     }
 
-    // Citas: cada usuario ve y crea solo las suyas; el admin ve y gestiona todas.
+    // Citas: cada usuario ve y crea solo las suyas; el admin del negocio
+    // correspondiente ve y gestiona las de su negocio.
     match /citas/{citaId} {
-      allow read: if isAdmin() || (isSignedIn() && resource.data.usuarioId == request.auth.uid);
+      allow read: if (isSignedIn() && resource.data.usuarioId == request.auth.uid) || esAdminDelNegocio(resource.data.get('negocioId', null));
       allow create: if isSignedIn() && request.resource.data.usuarioId == request.auth.uid;
-      allow update: if isAdmin() || (isSignedIn() && resource.data.usuarioId == request.auth.uid);
-      allow delete: if isAdmin();
+      allow update, delete: if (isSignedIn() && resource.data.usuarioId == request.auth.uid) || esAdminDelNegocio(resource.data.get('negocioId', null));
     }
 
-    // Historia clínica nutricional: un documento por paciente (id = uid del
-    // paciente). Solo el admin la captura/edita; el paciente solo la lee.
+    // Historia clínica: un documento por paciente (id = uid). Solo el admin
+    // del negocio del paciente la captura/edita; el paciente solo la lee.
     match /historias/{uid} {
-      allow read: if isOwner(uid) || isAdmin();
-      allow write: if isAdmin();
+      allow read: if isOwner(uid) || esAdminDelNegocio(resource.data.get('negocioId', null));
+      allow create: if esAdminDelNegocio(request.resource.data.get('negocioId', null));
+      allow update, delete: if esAdminDelNegocio(resource.data.get('negocioId', null));
     }
   }
 }

@@ -57,6 +57,34 @@
     <h1 class="text-2xl font-extrabold text-gray-900">Usuarios registrados</h1>
     <p class="mt-1 text-gray-500 text-sm">Gestiona roles y asigna un plan a cada persona.</p>
 
+    <!-- Configuración inicial del negocio (solo aparece si aún no está configurado) -->
+    <div id="banner-configurar-negocio" class="hidden mt-6 bg-white border-2 border-green-500 rounded-3xl p-6">
+      <h2 class="font-bold text-gray-900">Configura tu negocio</h2>
+      <p class="mt-1 text-sm text-gray-500">
+        Antes de continuar, dale un nombre a tu negocio. Tus datos de prueba actuales
+        (usuarios, planes, citas, recetas e historias) se asignarán automáticamente a él.
+      </p>
+      <form id="form-configurar-negocio" class="mt-4 flex flex-col sm:flex-row gap-3">
+        <input type="text" id="nombre-negocio-nuevo" required placeholder="Nombre de tu negocio o clínica"
+          class="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm" />
+        <button type="submit" id="btn-configurar-negocio" class="rounded-xl bg-green-500 hover:bg-green-400 text-brandDark font-bold px-6 py-2.5 text-sm whitespace-nowrap">
+          Configurar y continuar
+        </button>
+      </form>
+      <p id="mensaje-configurar-negocio" class="hidden mt-3 text-sm font-medium text-brandDark"></p>
+    </div>
+
+    <!-- Link de registro para compartir con pacientes -->
+    <div id="caja-link-registro" class="hidden mt-6 bg-brandLight/20 border border-brandLight rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-4">
+      <p class="text-sm text-gray-700 flex-1">
+        Comparte este link con tus pacientes para que se registren directamente en tu negocio:
+        <br /><span id="texto-link-registro" class="font-semibold text-brandDark break-all"></span>
+      </p>
+      <button id="btn-copiar-link" class="flex-shrink-0 rounded-full bg-brandDark text-white font-semibold px-5 py-2 text-sm hover:bg-green-800 transition-colors">
+        Copiar link
+      </button>
+    </div>
+
     <div class="mt-8 bg-white rounded-3xl shadow-lg overflow-hidden">
       <table class="w-full text-sm">
         <thead class="bg-gray-50 text-gray-500 text-left uppercase text-xs">

@@ -2,14 +2,21 @@
 // admin (colección "planes" de Firestore), con botón de pago cuando el plan
 // tiene un enlace de pago configurado.
 import { db } from "./firebase-config.js";
-import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { obtenerNegocioIdActual } from "./negocio-actual.js";
 
 const contenedor = document.getElementById("planes-lista");
 if (contenedor) cargarPlanesPublicos();
 
 async function cargarPlanesPublicos() {
   try {
-    const snap = await getDocs(collection(db, "planes"));
+    const negocioId = await obtenerNegocioIdActual();
+    if (!negocioId) {
+      contenedor.innerHTML = `<p class="text-gray-400 col-span-3 text-center">Muy pronto publicaremos nuestros planes aquí.</p>`;
+      return;
+    }
+
+    const snap = await getDocs(query(collection(db, "planes"), where("negocioId", "==", negocioId)));
 
     if (snap.empty) {
       contenedor.innerHTML = `

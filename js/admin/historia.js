@@ -4,12 +4,14 @@ import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/
 import { crearTablaEditable } from "../tabla-editable.js";
 import { leerCamposPlanos, poblarCamposPlanos } from "../form-utils.js";
 import { TABLAS, SECCIONES_LISTA } from "../historia-config.js";
+import { requerirNegocio } from "./negocio-guard.js";
 
 const uid = new URLSearchParams(location.search).get("uid");
 const form = document.getElementById("form-historia");
 const nombreAdmin = document.getElementById("nombre-admin");
 const pacienteNombre = document.getElementById("paciente-nombre");
 const guardadoEstado = document.getElementById("guardado-estado");
+let negocioId = null;
 
 if (!uid) window.location.href = "admin-dashboard.html";
 
@@ -127,6 +129,8 @@ Object.keys(SECCIONES_LISTA).forEach((nombreSeccion) => {
 
 // ---------- Carga y guardado ----------
 protegerPagina(["admin"], async (user, perfil) => {
+  if (!requerirNegocio(perfil)) return;
+  negocioId = perfil.negocioId;
   nombreAdmin.textContent = `Hola, ${perfil.nombre}`;
 
   const pacienteSnap = await getDoc(doc(db, "users", uid));
@@ -135,6 +139,10 @@ protegerPagina(["admin"], async (user, perfil) => {
     return;
   }
   const paciente = pacienteSnap.data();
+  if (paciente.negocioId && paciente.negocioId !== negocioId) {
+    pacienteNombre.textContent = "Este paciente no pertenece a tu negocio.";
+    return;
+  }
   pacienteNombre.textContent = `${paciente.nombre} · ${paciente.email}`;
 
   const historiaSnap = await getDoc(doc(db, "historias", uid));
@@ -163,6 +171,7 @@ document.getElementById("btn-guardar").addEventListener("click", async () => {
   Object.keys(SECCIONES_LISTA).forEach((nombreSeccion) => {
     datos[SECCIONES_LISTA[nombreSeccion].campo] = datosListas[nombreSeccion];
   });
+  datos.negocioId = negocioId;
   datos.actualizadoEn = new Date().toISOString();
 
   await setDoc(doc(db, "historias", uid), datos);
