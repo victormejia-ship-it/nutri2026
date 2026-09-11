@@ -5,7 +5,7 @@ html {
 }
 
 body {
-  font-family: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Header con sombra al hacer scroll (clase añadida por script.js) */
@@ -24,9 +24,9 @@ body {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #f0fbf5;
+  background: #f6f8f7;
 }
 ::-webkit-scrollbar-thumb {
-  background: #8bdaa6;
+  background: #22c55e;
   border-radius: 999px;
 }
