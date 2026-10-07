@@ -65,12 +65,12 @@ alguien o se le cambia el rol, el cambio se aplica en menos de 2 minutos.
 
 ## Puesta en marcha con Firebase
 
-1. Crear el proyecto `profectus` en la [consola de Firebase](https://console.firebase.google.com).
+1. Crear el proyecto `profectus` (id: `profectus-4f1fa`) en la [consola de Firebase](https://console.firebase.google.com).
 2. **Authentication** → Sign-in method → activar **Correo electrónico/contraseña**.
 3. **Firestore Database** → Crear base de datos en modo producción, en la región `nam5` o `us-central`.
 4. Publicar las reglas:
    ```bash
-   firebase deploy --only firestore:rules --project profectus
+   firebase deploy --only firestore:rules --project profectus-4f1fa
    ```
    También se pueden publicar desde la consola: Firestore → Reglas → pegar el
    contenido de `config/firestore.rules` → Publicar.
@@ -85,7 +85,7 @@ Es un sitio estático, así que funciona con **Firebase Hosting** o con
 **GitHub Pages**:
 
 ```bash
-firebase deploy --only hosting --project profectus
+firebase deploy --only hosting --project profectus-4f1fa
 ```
 
 Para un dominio propio (por ejemplo `profectus.com.mx`), se agrega en
