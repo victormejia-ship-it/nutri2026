@@ -1,0 +1,107 @@
+rules_version = '2';
+
+/* ===========================================================================
+   Reglas de seguridad de PROFECTUS
+
+   Esto es lo que de verdad protege la información: sin una cuenta aprobada
+   aquí nadie lee ni escribe nada, aunque copie la página o la configuración.
+
+   Publicar:  firebase deploy --only firestore:rules --project <id-del-proyecto>
+   (o consola de Firebase → Firestore Database → Reglas → pegar → Publicar)
+
+   Roles (de más a menos poder):
+     owner    → todo; es el único que puede nombrar/tocar a otro owner
+     admin    → todo lo demás, incluidas cuentas, catálogo y parámetros
+     analyst  → agrega y modifica clientes, cotizaciones y catálogo
+     viewer   → solo lee
+
+   Arranque: la PRIMERA cuenta que se registra en un proyecto vacío se vuelve
+   owner (crea /sistema/arranque en la misma escritura). Todas las demás
+   nacen como viewer bloqueado y un owner/admin las aprueba en Admin.
+   =========================================================================== */
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function perfil() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+    function conAcceso() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/usuarios/$(request.auth.uid))
+        && perfil().activo == true;
+    }
+    function rol() { return perfil().rol; }
+    function esOwner()     { return conAcceso() && rol() == 'owner'; }
+    function esAdmin()     { return conAcceso() && rol() in ['owner', 'admin']; }
+    function puedeEditar() { return conAcceso() && rol() in ['owner', 'admin', 'analyst']; }
+
+    function hayArranque() {
+      return exists(/databases/$(database)/documents/sistema/arranque);
+    }
+
+    /* ------------------------------ usuarios ------------------------------ */
+    match /usuarios/{uid} {
+      allow read: if (request.auth != null && request.auth.uid == uid) || esAdmin();
+
+      allow create: if request.auth != null && request.auth.uid == uid && (
+          /* auto-registro: nace bloqueado y sin poder */
+          (request.resource.data.rol == 'viewer' && request.resource.data.activo == false)
+          /* primera cuenta del proyecto: owner, junto con /sistema/arranque */
+          || (request.resource.data.rol == 'owner' && request.resource.data.activo == true
+              && !hayArranque()
+              && existsAfter(/databases/$(database)/documents/sistema/arranque))
+        )
+        /* admin dando de alta a alguien más (nunca otro owner, salvo owner) */
+        || (esAdmin() && (request.resource.data.rol != 'owner' || esOwner()));
+
+      allow update: if
+          /* la persona solo puede tocar sus preferencias, nunca rol/activo */
+          (request.auth != null && request.auth.uid == uid && conAcceso()
+            && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['rol', 'activo', 'correo']))
+          /* admin: a cualquiera menos a un owner; owner: a todos */
+          || (esAdmin() && resource.data.rol != 'owner' && request.resource.data.rol != 'owner')
+          || (esOwner() && uid != request.auth.uid);
+
+      allow delete: if esOwner() && uid != request.auth.uid
+        || (esAdmin() && resource.data.rol != 'owner');
+    }
+
+    /* ------------------------------ sistema ------------------------------- */
+    match /sistema/arranque {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && !hayArranque()
+        && getAfter(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'owner';
+      allow update, delete: if false;
+    }
+    match /sistema/parametros {
+      allow read: if conAcceso();
+      allow write: if esAdmin();
+    }
+
+    /* ------------------------------ negocio ------------------------------- */
+    match /clientes/{id} {
+      allow read: if conAcceso();
+      allow create, update: if puedeEditar();
+      allow delete: if esAdmin();
+    }
+    match /cotizaciones/{id} {
+      allow read: if conAcceso();
+      allow create, update: if puedeEditar();
+      allow delete: if esAdmin();
+    }
+
+    /* ------------------------------ bitácora ------------------------------ */
+    /* Solo se agrega; nadie la edita ni la borra (ni el owner). */
+    match /bitacora/{id} {
+      allow read: if esAdmin();
+      allow create: if conAcceso() && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    /* Candado general: lo que no se nombró arriba, cerrado. */
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
