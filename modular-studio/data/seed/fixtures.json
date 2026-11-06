@@ -1,0 +1,52 @@
+{
+  "panelBoxCases": [
+    {
+      "case": "gabinete_800_850_550_18",
+      "input": {
+        "widthMm": 800,
+        "heightMm": 850,
+        "depthMm": 550,
+        "thicknessMm": 18,
+        "strategy": "top_bottom_between_sides"
+      },
+      "expected": [
+        {
+          "id": "SIDE",
+          "qty": 2,
+          "lengthMm": 850,
+          "widthMm": 550,
+          "thicknessMm": 18
+        },
+        {
+          "id": "HORIZONTAL",
+          "qty": 2,
+          "lengthMm": 764,
+          "widthMm": 550,
+          "thicknessMm": 18
+        }
+      ]
+    },
+    {
+      "case": "invalid_width",
+      "input": {
+        "widthMm": 30,
+        "heightMm": 850,
+        "depthMm": 550,
+        "thicknessMm": 18,
+        "strategy": "top_bottom_between_sides"
+      },
+      "error": "WIDTH_BELOW_DOUBLE_THICKNESS"
+    }
+  ],
+  "pricingCases": [
+    {
+      "costBeforeTaxMxn": 1000,
+      "marginPct": 25,
+      "expectedSellBeforeTaxMxn": 1333.33
+    },
+    {
+      "requiredLineMissingPrice": true,
+      "expectedStatus": "INCOMPLETE"
+    }
+  ]
+}

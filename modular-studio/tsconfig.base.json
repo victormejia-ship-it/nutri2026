@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "exactOptionalPropertyTypes": false,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": false,
+    "baseUrl": ".",
+    "paths": {
+      "@ms/domain": ["packages/domain/src/index.ts"],
+      "@ms/geometry": ["packages/geometry/src/index.ts"],
+      "@ms/cut-optimizer": ["packages/cut-optimizer/src/index.ts"],
+      "@ms/export": ["packages/export/src/index.ts"],
+      "@ms/db": ["packages/db/src/index.ts"]
+    }
+  }
+}

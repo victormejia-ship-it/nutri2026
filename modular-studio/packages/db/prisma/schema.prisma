@@ -1,0 +1,123 @@
+// Modular Studio — esquema PostgreSQL.
+// El contenido técnico del proyecto se guarda como documento JSON versionado (schemaVersion),
+// y cada revisión congela snapshot + versión de cálculo. Las ofertas de proveedor son filas
+// normalizadas con histórico (nunca se sobrescribe la fuente).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Workspace {
+  id        String           @id
+  name      String
+  createdAt DateTime         @default(now())
+  members   Membership[]
+  projects  Project[]
+  offers    SupplierOffer[]
+}
+
+model User {
+  id          String       @id @default(cuid())
+  email       String       @unique
+  name        String
+  createdAt   DateTime     @default(now())
+  memberships Membership[]
+}
+
+enum Role {
+  ADMIN
+  DESIGNER
+  CARPENTER
+  BUYER
+  VIEWER
+}
+
+model Membership {
+  userId      String
+  workspaceId String
+  role        Role
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@id([userId, workspaceId])
+}
+
+model Project {
+  id            String            @id
+  workspaceId   String
+  name          String
+  customer      String            @default("")
+  schemaVersion String
+  data          Json
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime
+  workspace     Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  revisions     ProjectRevision[]
+
+  @@index([workspaceId, updatedAt])
+}
+
+model ProjectRevision {
+  id                String   @id @default(cuid())
+  projectId         String
+  number            Int
+  note              String   @default("")
+  author            String   @default("")
+  schemaVersion     String
+  calcVersion       String
+  releaseStatus     String
+  quoteCompleteness String
+  snapshot          Json
+  createdAt         DateTime @default(now())
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, number])
+}
+
+model Supplier {
+  id           String          @id
+  name         String
+  categories   String[]
+  officialUrl  String?
+  catalogUrl   String?
+  candidateUrl String?
+  verification String
+  priceMode    String
+  notes        String          @default("")
+  offers       SupplierOffer[]
+}
+
+model SupplierOffer {
+  id             String    @id
+  workspaceId    String
+  supplierId     String
+  productKey     String
+  sku            String
+  description    String
+  packQuantity   Decimal   @db.Decimal(12, 4)
+  purchaseUnit   String
+  currency       String    @default("MXN")
+  priceCents     Int?
+  taxIncluded    Boolean?
+  taxRatePct     Decimal?  @db.Decimal(5, 2)
+  priceStatus    String
+  verifiedAt     String?
+  validUntil     String?
+  sourceUrl      String?
+  quoteReference String?
+  available      Boolean?
+  reliability    String
+  capturedBy     String?
+  notes          String    @default("")
+  createdAt      DateTime  @default(now())
+  workspace      Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  supplier       Supplier  @relation(fields: [supplierId], references: [id])
+
+  @@unique([workspaceId, supplierId, sku, packQuantity, purchaseUnit, verifiedAt, quoteReference])
+  @@index([workspaceId, productKey])
+}
