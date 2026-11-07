@@ -23,7 +23,12 @@
     "db:migrate": "npm run migrate -w @ms/db",
     "db:deploy": "npm run deploy -w @ms/db",
     "db:seed": "npm run seed -w @ms/db",
-    "verify": "npm run lint && npm test && npm run build && npm run e2e"
+    "verify": "npm run lint && npm test && npm run build && npm run e2e",
+    "build:firebase": "BUILD_TARGET=firebase npm run build -w @ms/web",
+    "deploy:firebase": "npm run build:firebase && npx -y firebase-tools@15.35.0 deploy --only hosting,firestore",
+    "firebase:emulators": "npx -y firebase-tools@15.35.0 emulators:start --only auth,firestore,hosting --project demo-modular-studio",
+    "build:firebase:emulator": "BUILD_TARGET=firebase NEXT_PUBLIC_FIREBASE_API_KEY=demo-key NEXT_PUBLIC_FIREBASE_PROJECT_ID=demo-modular-studio NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=localhost NEXT_PUBLIC_FIREBASE_APP_ID=demo NEXT_PUBLIC_FIREBASE_EMULATOR_HOST=127.0.0.1 npm run build -w @ms/web",
+    "e2e:firebase": "playwright test -c playwright.firebase.config.ts --trace off"
   },
   "devDependencies": {
     "@eslint/js": "9.39.1",

@@ -6,7 +6,7 @@ async function createProject(page: Page, name: string) {
   await page.getByLabel('Nombre del proyecto').fill(name);
   await page.getByLabel('Plantilla inicial').selectOption('kitchen_base');
   await page.getByRole('button', { name: 'Crear y abrir editor' }).click();
-  await page.waitForURL(/\/proyectos\//);
+  await page.waitForURL(/\/editor\/?\?id=/);
   await expect(page.getByTestId('model-svg')).toBeVisible();
 }
 

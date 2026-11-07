@@ -12,6 +12,9 @@ Ejecutado el 2026-11-06 en contenedor Linux con Node 22.23, npm 10.9, PostgreSQL
 | `npm run db:seed` | 3 proveedores, 7 ofertas demo (0 verificables, por política). |
 | `npm run build` | `tsc` estricto (paquetes + app) y `next build` OK; JS compartido 103 kB, editor 168 kB de primera carga. |
 | `npm run e2e` | 3/3 OK (ver abajo). |
+| `npm run build:firebase:emulator` | Exportación estática OK (5 páginas, editor 173 kB). |
+| `npm run e2e:firebase` (emuladores Auth + Firestore + Hosting) | 2/2 OK: registro, proyecto en Firestore, guardado, revisión, exportación CSV/PDF en navegador, persistencia, aislamiento entre usuarios, captura e importación de ofertas. |
+| Reglas de Firestore (REST contra emulador) | Propio 200; otro usuario 403; sin sesión 403; fuera de `ms_users` 403. |
 | Prueba manual con `DATA_BACKEND=prisma` | Crear proyecto, congelar revisión, abrir editor, exportar CSV y listar ofertas contra PostgreSQL: OK. |
 | Recálculo completo (motor + acomodo + cotización) | 4 módulos ≈ 1.3 ms; 12 ≈ 1.4 ms; 24 ≈ 2.1 ms (Node, promedio de 10). Objetivo PRD < 200 ms. |
 
@@ -39,6 +42,6 @@ Ejecutado el 2026-11-06 en contenedor Linux con Node 22.23, npm 10.9, PostgreSQL
 
 ## No verificado
 
-- Despliegue en una plataforma real (sólo `next start` local).
+- Despliegue en un proyecto real de Firebase (sólo emuladores) y en una plataforma Node real (sólo `next start` local).
 - Navegadores distintos de Chromium; lectores de pantalla (se aplicaron etiquetas, roles y foco visible, sin auditoría AA formal).
 - Visualización del PDF en visores distintos de poppler (`pdftoppm`).

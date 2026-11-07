@@ -32,7 +32,7 @@
 |---|---|---|
 | Uso de cantidades orientativas como definitivas | Estados `pending_validation`, bloqueos de liberación, avisos en UI/PDF | Biblioteca de herrajes verificada por SKU. |
 | Precios desactualizados | Fecha, vigencia, `VENCIDO` no se usa automáticamente | Alertas por vigencia; histórico por fecha en UI. |
-| UI multiusuario sin identidad real | API con tokens por workspace/rol; UI en workspace demo | Integrar OIDC/Auth.js y membresías (modelo ya en Prisma). |
+| UI multiusuario sin identidad real (modo servidor) | Modo Firebase: Firebase Auth + reglas por usuario. Modo servidor: tokens de API por workspace/rol, UI en workspace demo | Espacios compartidos por equipo en Firestore; OIDC en el modo servidor. |
 | Modo demo en producción | Insignia «MODO DEMO» visible | Forzar `DATA_BACKEND=prisma` en despliegue. |
 | Familias aproximadas | Bloqueo `TEMPLATE_REQUIRES_ENGINE_VALIDATION` | Motores de isla, vestidor, mostrador y exhibidor. |
 | Optimizador simple | Rótulo «validar en optimizador del taller» | Retazos, defectos, secuencia de corte, comparación con software del taller. |

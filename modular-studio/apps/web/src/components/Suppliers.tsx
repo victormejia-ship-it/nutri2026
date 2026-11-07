@@ -1,7 +1,8 @@
 'use client';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DEFAULT_CATALOG, OFFER_CSV_COLUMNS, SUPPLIERS, formatMXN, isExpired, netPackCents, type PriceStatus, type SupplierOffer } from '@ms/domain';
-import { api, errorMessage } from '@/lib/api';
+import { errorMessage } from '@/lib/api';
+import { getDataClient } from '@/lib/data';
 import { Alert, Badge, Button, EmptyState, Field, Panel, type Tone } from './ui';
 
 export const PRICE_STATUS_TONE: Record<PriceStatus, Tone> = {
@@ -31,7 +32,7 @@ export function Suppliers() {
   const [form, setForm] = useState(emptyForm);
 
   const load = useCallback(async () => {
-    try { setOffers((await api<{ offers: SupplierOffer[] }>('/api/offers')).offers); } catch (e) { setError(errorMessage(e)); }
+    try { setOffers(await (await getDataClient()).listOffers()); } catch (e) { setError(errorMessage(e)); }
   }, []);
   useEffect(() => { void load(); }, [load]);
 
@@ -40,7 +41,7 @@ export function Suppliers() {
   async function importCsv() {
     setError(null); setMsg(null);
     try {
-      const r = await api<{ added: number; duplicates: number; errors: { row: number; message: string }[] }>('/api/offers/import', { method: 'POST', body: csv, headers: { 'Content-Type': 'text/csv' } });
+      const r = await (await getDataClient()).importOffersCsv(csv);
       setMsg(`Importadas ${r.added} oferta(s); ${r.duplicates} duplicada(s) omitida(s).${r.errors.length ? ` Errores: ${r.errors.map((e) => `fila ${e.row}: ${e.message}`).join(' · ')}` : ''}`);
       if (r.added) setCsv('');
       await load();
@@ -52,12 +53,12 @@ export function Suppliers() {
     setError(null); setMsg(null);
     const price = form.price.trim() === '' ? null : Math.round(Number(form.price.replace(',', '.')) * 100);
     try {
-      await api('/api/offers', { method: 'POST', json: {
+      await (await getDataClient()).addOffer({
         supplierId: form.supplierId, productKey: form.productKey, sku: form.sku, description: form.description, packQuantity: Number(form.packQuantity), purchaseUnit: form.purchaseUnit,
         priceCents: form.priceStatus === 'PENDIENTE' ? null : price, taxIncluded: form.priceStatus === 'PENDIENTE' ? null : form.taxIncluded === 'true', taxRatePct: form.priceStatus === 'PENDIENTE' ? null : Number(form.taxRatePct),
         priceStatus: form.priceStatus, verifiedAt: form.verifiedAt || null, validUntil: form.validUntil || null, sourceUrl: form.sourceUrl || null, quoteReference: form.quoteReference || null,
-        available: null, reliability: form.reliability, capturedBy: form.capturedBy || null, notes: form.notes,
-      } });
+        available: null, reliability: form.reliability as SupplierOffer['reliability'], capturedBy: form.capturedBy || null, notes: form.notes,
+      });
       setMsg('Oferta registrada.');
       setForm({ ...emptyForm, supplierId: form.supplierId });
       await load();

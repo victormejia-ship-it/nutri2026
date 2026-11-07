@@ -8,3 +8,6 @@ playwright-report
 .env
 .env.local
 next-env.d.ts
+out
+*-debug.log
+.firebase

@@ -3,7 +3,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import type { ProjectSummary } from '@ms/domain';
-import { api, errorMessage } from '@/lib/api';
+import { errorMessage } from '@/lib/api';
+import { getDataClient } from '@/lib/data';
 import { Alert, Badge, Button, EmptyState, Field, Panel } from './ui';
 
 interface FamilyOpt { id: string; name: string; category: string; status: string }
@@ -17,7 +18,7 @@ export function Dashboard({ families }: { families: FamilyOpt[] }) {
 
   const load = useCallback(async () => {
     try {
-      setProjects((await api<{ projects: ProjectSummary[] }>('/api/projects')).projects);
+      setProjects(await (await getDataClient()).listProjects());
     } catch (e) { setError(errorMessage(e)); }
   }, []);
   useEffect(() => { void load(); }, [load]);
@@ -26,25 +27,25 @@ export function Dashboard({ families }: { families: FamilyOpt[] }) {
     e.preventDefault();
     setBusy(true); setError(null);
     try {
-      const { project } = await api<{ project: { id: string } }>('/api/projects', { method: 'POST', json: form });
-      router.push(`/proyectos/${project.id}`);
+      const project = await (await getDataClient()).createProject(form);
+      router.push(`/editor?id=${encodeURIComponent(project.id)}`);
     } catch (err) { setError(errorMessage(err)); setBusy(false); }
   }
 
   async function duplicate(id: string) {
-    try { await api('/api/projects', { method: 'POST', json: { sourceId: id } }); await load(); } catch (e) { setError(errorMessage(e)); }
+    try { await (await getDataClient()).duplicateProject(id); await load(); } catch (e) { setError(errorMessage(e)); }
   }
   async function remove(id: string, name: string) {
     if (!confirm(`¿Eliminar "${name}" y todas sus revisiones? Esta acción no se puede deshacer.`)) return;
-    try { await api(`/api/projects/${id}`, { method: 'DELETE' }); await load(); } catch (e) { setError(errorMessage(e)); }
+    try { await (await getDataClient()).deleteProject(id); await load(); } catch (e) { setError(errorMessage(e)); }
   }
   async function importFile(file: File) {
     setError(null);
     try {
       const data = JSON.parse(await file.text());
-      const { project, notes } = await api<{ project: { id: string }; notes: string[] }>('/api/projects', { method: 'POST', json: { import: data } });
+      const { project, notes } = await (await getDataClient()).importProject(data);
       if (notes.length) alert(notes.join('\n'));
-      router.push(`/proyectos/${project.id}`);
+      router.push(`/editor?id=${encodeURIComponent(project.id)}`);
     } catch (e) { setError(`No se pudo importar: ${errorMessage(e)}`); }
   }
 
@@ -77,7 +78,7 @@ export function Dashboard({ families }: { families: FamilyOpt[] }) {
             {projects.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-panel-2 px-4 py-3">
                 <div className="min-w-0">
-                  <Link href={`/proyectos/${p.id}`} className="font-semibold text-[#cfeff7] hover:underline">{p.name}</Link>
+                  <Link href={`/editor?id=${encodeURIComponent(p.id)}`} className="font-semibold text-[#cfeff7] hover:underline">{p.name}</Link>
                   <div className="text-[12px] text-muted">{p.customer || 'Sin cliente'} · {p.moduleCount} módulo(s) · actualizado {new Date(p.updatedAt).toLocaleString('es-MX')}</div>
                 </div>
                 <div className="flex items-center gap-2">

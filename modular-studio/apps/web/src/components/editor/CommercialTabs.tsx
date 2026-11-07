@@ -4,7 +4,8 @@ import {
   QC_CHECKLIST, SUPPLIERS, diagonalChecks, evaluateOffers, formatMXN,
   type ManufacturingPlan, type PricingSettings, type Project, type ProjectRevisionRecord, type SupplierOffer,
 } from '@ms/domain';
-import { api, downloadExport, errorMessage } from '@/lib/api';
+import { api, errorMessage } from '@/lib/api';
+import { IS_FIREBASE, getDataClient, type ExportFormat } from '@/lib/data';
 import { Alert, Badge, Button, EmptyState, Stat, quoteTone, releaseLabel, releaseTone, severityLabel, severityTone } from '../ui';
 import { PRICE_STATUS_TONE } from '../Suppliers';
 import { MoneyInput, NumberInput, SelectInput } from './inputs';
@@ -116,7 +117,7 @@ export function QuoteTab({ plan, project, onPricing, saved }: { plan: Manufactur
         </table>
       </section>
       {q.warnings.map((w) => <Alert key={w} tone="warn">{w}</Alert>)}
-      <div className="flex flex-wrap items-center gap-2">
+      {!IS_FIREBASE && <div className="flex flex-wrap items-center gap-2">
         <Button variant="secondary" disabled={!saved} title={saved ? '' : 'Guarde para validar en servidor'} onClick={async () => {
           try {
             const r = await api<{ quote: typeof q }>('/api/quotes', { method: 'POST', json: { projectId: project.id } });
@@ -124,7 +125,7 @@ export function QuoteTab({ plan, project, onPricing, saved }: { plan: Manufactur
           } catch (e) { setServer(errorMessage(e)); }
         }}>Validar cotización en servidor</Button>
         {server && <span className="text-[12.5px]">{server}</span>}
-      </div>
+      </div>}
     </div>
   );
 }
@@ -214,7 +215,7 @@ export function ExportTab({ project, dirty, onSave, revisionId }: { project: Pro
   const run = async (format: string, extra: Record<string, unknown> = {}) => {
     setMsg(null);
     if (dirty && !revisionId && !(await onSave())) return;
-    try { setMsg(`Descargado: ${await downloadExport(format, { projectId: project.id, revisionId, separator: sep, ...extra })}`); } catch (e) { setMsg(errorMessage(e)); }
+    try { setMsg(`Descargado: ${await (await getDataClient()).exportProject(project.id, format as ExportFormat, { revisionId, separator: sep, ...extra })}`); } catch (e) { setMsg(errorMessage(e)); }
   };
   const items: { f: string; label: string; desc: string; extra?: Record<string, unknown> }[] = [
     { f: 'pdf', label: 'PDF de fabricación', desc: 'Expediente: isométrico, despiece, tableros, herrajes, incidencias, presupuesto, armado y QC.' },
@@ -230,7 +231,7 @@ export function ExportTab({ project, dirty, onSave, revisionId }: { project: Pro
   return (
     <div className="grid gap-3">
       {revisionId && <Alert tone="info">Exportando la revisión {revisionId} (congelada).</Alert>}
-      {dirty && !revisionId && <Alert tone="warn">Hay cambios sin guardar: se guardarán antes de exportar (el servidor recalcula desde lo guardado).</Alert>}
+      {dirty && !revisionId && <Alert tone="warn">Hay cambios sin guardar: se guardarán antes de exportar (la exportación se calcula desde lo guardado).</Alert>}
       <div className="max-w-xs"><SelectInput label="Separador CSV" value={sep} onChange={setSep} options={[{ value: ';', label: '; (Excel es-MX, coma decimal)' }, { value: ',', label: ', (estándar, punto decimal)' }]} testId="csv-sep" /></div>
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((it) => (
@@ -242,12 +243,12 @@ export function ExportTab({ project, dirty, onSave, revisionId }: { project: Pro
       </div>
       {msg && <p role="status" className="text-[12.5px]" data-testid="export-msg">{msg}</p>}
       <p className="text-[11.5px] text-muted">DXF y DWG no están implementados (no se prometen). Programas CNC: fuera de alcance hasta contar con posprocesador homologado.</p>
-      <section className="rounded-xl border border-line p-3">
+      {!IS_FIREBASE && <section className="rounded-xl border border-line p-3">
         <h3 className="font-semibold">Render fotorrealista (opcional)</h3>
         <p className="text-[12px] text-muted">Interfaz preparada para un servicio externo configurado en servidor. Distingue «inspiración visual» de «render geométricamente fiel». Un render nunca sustituye planos ni despiece.</p>
         <Button className="mt-2" variant="secondary" onClick={async () => { const r = await api<{ status: string; disclaimer: string }>('/api/render', { method: 'POST', json: { projectId: project.id, moduleId: project.modules[0]?.id, kind: 'inspiracion_visual' } }); setRender(`${r.status}: ${r.disclaimer}`); }}>Solicitar render de inspiración</Button>
         {render && <p className="mt-1 text-[12px]">{render}</p>}
-      </section>
+      </section>}
     </div>
   );
 }

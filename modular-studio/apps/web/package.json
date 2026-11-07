@@ -12,6 +12,7 @@
     "@ms/domain": "*",
     "@ms/export": "*",
     "@ms/geometry": "*",
+    "firebase": "^10.14.1",
     "next": "15.5.29",
     "react": "19.2.9",
     "react-dom": "19.2.9",

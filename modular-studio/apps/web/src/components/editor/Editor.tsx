@@ -5,7 +5,8 @@ import {
   DEFAULT_CATALOG, createModule, nextModuleId, planProject,
   type ModuleSpec, type PricingSettings, type Project, type ProjectRevisionRecord, type SupplierOffer,
 } from '@ms/domain';
-import { api, errorMessage } from '@/lib/api';
+import { errorMessage } from '@/lib/api';
+import { getDataClient } from '@/lib/data';
 import { Alert, Badge, Button, Panel, Stat, quoteTone, releaseLabel, releaseTone } from '../ui';
 import { ModuleForm, ModuleList } from './ModulePanel';
 import { Viewer } from './Viewer';
@@ -43,9 +44,9 @@ export function Editor({ initial }: { initial: Project }) {
   const today = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const readOnly = viewing !== null;
 
-  useEffect(() => { api<{ offers: SupplierOffer[] }>('/api/offers').then((r) => setOffers(r.offers)).catch((e) => setError(errorMessage(e))); }, []);
+  useEffect(() => { getDataClient().then((c) => c.listOffers()).then(setOffers).catch((e) => setError(errorMessage(e))); }, []);
   const loadRevisions = useCallback(() => {
-    api<{ revisions: Omit<ProjectRevisionRecord, 'snapshot'>[] }>(`/api/projects/${initial.id}/revisions`).then((r) => setRevisions(r.revisions)).catch((e) => setError(errorMessage(e)));
+    getDataClient().then((c) => c.listRevisions(initial.id)).then(setRevisions).catch((e) => setError(errorMessage(e)));
   }, [initial.id]);
   useEffect(() => { loadRevisions(); }, [loadRevisions]);
 
@@ -73,8 +74,8 @@ export function Editor({ initial }: { initial: Project }) {
     if (readOnly) return false;
     setSaving(true); setError(null);
     try {
-      const r = await api<{ project: Project }>(`/api/projects/${project.id}`, { method: 'PATCH', json: { project, expectedUpdatedAt: savedAt } });
-      setProject(r.project); setSavedAt(r.project.updatedAt); setDirty(false); setNotice('Guardado.');
+      const saved = await (await getDataClient()).saveProject(project, savedAt);
+      setProject(saved); setSavedAt(saved.updatedAt); setDirty(false); setNotice('Guardado.');
       return true;
     } catch (e) { setError(`No se guardó: ${errorMessage(e)}`); return false; } finally { setSaving(false); }
   }, [project, savedAt, readOnly]);
@@ -89,7 +90,8 @@ export function Editor({ initial }: { initial: Project }) {
 
   async function openRevision(id: string) {
     try {
-      const { revision } = await api<{ revision: ProjectRevisionRecord }>(`/api/projects/${project.id}/revisions/${id}`);
+      const revision = await (await getDataClient()).getRevision(project.id, id);
+      if (!revision) throw new Error('Revisión no encontrada');
       setViewing({ id, number: revision.number, draft: project });
       setProject(revision.snapshot);
       setSelectedModule(revision.snapshot.modules[0]?.id ?? null);
@@ -188,7 +190,7 @@ export function Editor({ initial }: { initial: Project }) {
                 {tab === 'history' && (
                   <HistoryTab revisions={revisions} saved={!dirty && !readOnly} onOpen={openRevision} onRefresh={loadRevisions}
                     onCreate={async (note) => {
-                      try { await api(`/api/projects/${project.id}/revisions`, { method: 'POST', json: { note } }); setNotice('Revisión congelada.'); loadRevisions(); } catch (e) { setError(errorMessage(e)); }
+                      try { await (await getDataClient()).createRevision(project.id, note); setNotice('Revisión congelada.'); loadRevisions(); } catch (e) { setError(errorMessage(e)); }
                     }} />
                 )}
               </>

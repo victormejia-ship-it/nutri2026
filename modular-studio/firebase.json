@@ -1,0 +1,33 @@
+{
+  "hosting": {
+    "public": "apps/web/out",
+    "cleanUrls": true,
+    "trailingSlash": true,
+    "ignore": ["**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+          { "key": "X-Frame-Options", "value": "DENY" }
+        ]
+      },
+      {
+        "source": "/_next/static/**",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "auth": { "port": 9099 },
+    "firestore": { "port": 8080 },
+    "hosting": { "port": 5000 },
+    "ui": { "enabled": false },
+    "singleProjectMode": true
+  }
+}
