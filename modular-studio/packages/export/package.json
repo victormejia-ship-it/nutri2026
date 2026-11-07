@@ -1,0 +1,9 @@
+{
+  "name": "@ms/export",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": { "@ms/domain": "*", "@ms/geometry": "*", "pdf-lib": "1.17.1" }
+}

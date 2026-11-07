@@ -1,0 +1,30 @@
+{
+  "name": "@ms/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000"
+  },
+  "dependencies": {
+    "@ms/cut-optimizer": "*",
+    "@ms/domain": "*",
+    "@ms/export": "*",
+    "@ms/geometry": "*",
+    "firebase": "^10.14.1",
+    "next": "15.5.29",
+    "react": "19.2.9",
+    "react-dom": "19.2.9",
+    "server-only": "^0.0.1"
+  },
+  "optionalDependencies": {
+    "@ms/db": "*"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.1.18",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "tailwindcss": "4.1.18"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "demo-cocina-001",
+  "projectName": "Gabinete base de ejemplo",
+  "currency": "MXN",
+  "unit": "mm",
+  "assemblies": [
+    {
+      "id": "gab001",
+      "familyId": "kitchen_base",
+      "constructionStrategy": "top_bottom_between_sides",
+      "widthMm": 800,
+      "heightMm": 850,
+      "depthMm": 550,
+      "thicknessMm": 18,
+      "materialId": "mel18",
+      "doorCount": 0,
+      "drawerCount": 0,
+      "backPanel": {
+        "enabled": false
+      },
+      "edgeBandPolicy": "front_visible_only",
+      "hardwareRulesVerified": false
+    }
+  ],
+  "pricing": {
+    "targetMarginPct": 25,
+    "taxRatePct": 16,
+    "offers": [],
+    "priceCompleteness": "INCOMPLETE"
+  },
+  "status": "DRAFT_NOT_RELEASED_FOR_MANUFACTURING"
+}

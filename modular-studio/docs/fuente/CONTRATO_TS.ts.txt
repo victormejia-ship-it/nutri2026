@@ -1,0 +1,28 @@
+export type Mm = number;
+export type PriceStatus = 'PUBLICADO_VERIFICADO' | 'COTIZADO' | 'CAPTURADO_MANUAL' | 'ESTIMADO' | 'PENDIENTE' | 'VENCIDO';
+export type ValidationStatus = 'verified' | 'pending_validation' | 'blocked';
+export type EdgeName = 'L1' | 'L2' | 'A1' | 'A2';
+export interface PanelPart {
+  id: string; name: string; quantity: number;
+  lengthMm: Mm; widthMm: Mm; thicknessMm: Mm;
+  grainAxis: 'length' | 'width' | 'none';
+  edgeBand: Partial<Record<EdgeName, string>>;
+  materialId: string; machiningOperationIds: string[];
+}
+export interface SupplierOffer {
+  supplierId: string; productId: string; sku: string;
+  packQuantity: number; purchaseUnit: string; currency: 'MXN';
+  priceCents: number | null; taxIncluded: boolean | null; taxRatePct: number | null;
+  priceStatus: PriceStatus; verifiedAt: string | null;
+  sourceUrl?: string; quoteReference?: string; available?: boolean | null;
+}
+export interface MachiningOperation {
+  id: string; partId: string; hardwareSku?: string;
+  xMm: Mm; yMm: Mm; zMm: Mm; diameterMm: Mm; depthMm: Mm;
+  technicalDatasheetUrl?: string; validationStatus: ValidationStatus;
+}
+export interface SteelRequirement {
+  id: string; shape: 'PTR' | 'ANGLE' | 'PLATE' | 'PROFILE' | 'OTHER';
+  sectionSpec: string; lengthMm?: Mm; count: number;
+  finish?: string; loadValidationRequired: boolean;
+}

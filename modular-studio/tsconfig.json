@@ -1,0 +1,5 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": { "noEmit": true, "types": ["node"] },
+  "include": ["packages/domain/src", "packages/geometry/src", "packages/cut-optimizer/src", "packages/export/src", "tests/unit", "vitest.config.ts", "playwright.config.ts", "playwright.firebase.config.ts", "tests/e2e", "tests/e2e-firebase"]
+}

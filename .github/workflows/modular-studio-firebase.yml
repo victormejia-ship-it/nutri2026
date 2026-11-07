@@ -1,0 +1,62 @@
+# Publica Modular Studio en Firebase Hosting (proyecto modular-studio-mx).
+# Requiere el secreto de repositorio FIREBASE_SERVICE_ACCOUNT_MODULAR_STUDIO_MX
+# (JSON de la cuenta de servicio; ver modular-studio/docs/PUBLICAR_FIREBASE.md).
+# No toca Nutripulso: se ejecuta sólo con cambios en modular-studio/ y despliega desde esa carpeta.
+name: Modular Studio · publicar en Firebase
+
+on:
+  push:
+    branches: [claude/new-web-project-setup-63ygi6, claude/new-session-iyip9e]
+    paths:
+      - 'modular-studio/**'
+      - '.github/workflows/modular-studio-firebase.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: modular-studio-firebase
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: modular-studio
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: modular-studio/package-lock.json
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint y pruebas
+        run: |
+          npm run lint
+          npm test
+
+      - name: Compilar sitio estático
+        run: npm run build:firebase
+
+      - name: Publicar en Firebase (hosting + reglas de Firestore)
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MODULAR_STUDIO_MX }}
+        run: |
+          if [ -z "$SERVICE_ACCOUNT" ]; then
+            echo "::error::Falta el secreto FIREBASE_SERVICE_ACCOUNT_MODULAR_STUDIO_MX. Ver modular-studio/docs/PUBLICAR_FIREBASE.md."
+            exit 1
+          fi
+          printf '%s' "$SERVICE_ACCOUNT" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx -y firebase-tools@15.35.0 deploy --only hosting,firestore --project modular-studio-mx --non-interactive
+          rm -f "$RUNNER_TEMP/sa.json"

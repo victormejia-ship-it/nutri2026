@@ -1,0 +1,44 @@
+rules_version = '2';
+// Modular Studio — cada usuario sólo puede leer y escribir su propio espacio (ms_users/{uid}/...).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /ms_users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      // Proyecto: documento JSON versionado (máx. ~800 KB), con nombre y fecha de actualización.
+      match /projects/{projectId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.data is string
+          && request.resource.data.data.size() < 800000
+          && request.resource.data.name is string
+          && request.resource.data.name.size() <= 160
+          && request.resource.data.updatedAt is string;
+
+        // Revisiones congeladas: se crean, se leen y se borran con el proyecto; nunca se editan.
+        match /revisions/{revisionId} {
+          allow read, delete: if isOwner(uid);
+          allow create: if isOwner(uid) && request.resource.data.snapshot is string && request.resource.data.snapshot.size() < 800000;
+          allow update: if false;
+        }
+      }
+
+      // Ofertas de proveedores: histórico; no se editan para no sobrescribir la fuente.
+      match /offers/{offerId} {
+        allow read, create: if isOwner(uid);
+        allow delete: if isOwner(uid);
+        allow update: if false;
+      }
+    }
+
+    // Todo lo demás, denegado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
