@@ -11,17 +11,11 @@ Modular Studio se publica como **sitio estático en Firebase Hosting**, con **Fi
 3. **Firestore Database → Crear base de datos → modo producción.** Elige la ubicación más cercana (por ejemplo `northamerica-south1`, Querétaro). Las reglas se suben con el deploy.
 4. **Configuración del proyecto → Tus apps → Web (`</>`)**: registra la app (sin marcar Hosting en este paso) y copia el objeto `firebaseConfig`.
 
-## 2. Pegar la configuración web
+## 2. Configuración web
 
-```bash
-cd modular-studio
-```
+Ya está en el repositorio: `apps/web/.env.production` contiene la configuración del proyecto `modular-studio-mx` (`apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`). Son claves públicas por diseño, igual que en `js/firebase-config.js` de Nutripulso; la seguridad la dan Firebase Auth y `firestore.rules`.
 
-```bash
-cp apps/web/.env.firebase.example apps/web/.env.production.local
-```
-
-Abre `apps/web/.env.production.local` y pega los valores de `firebaseConfig` (`apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`). Son claves públicas por diseño (igual que en `js/firebase-config.js` de Nutripulso); la seguridad la dan Firebase Auth y `firestore.rules`. El archivo está ignorado por git.
+Si algún día cambias de proyecto, actualiza ese archivo y `.firebaserc`. Para pruebas puntuales puedes sobrescribirla sin tocar git con `apps/web/.env.production.local` (ver `apps/web/.env.firebase.example`).
 
 ## 3. Publicar
 
