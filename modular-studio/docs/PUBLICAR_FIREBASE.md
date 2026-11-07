@@ -19,6 +19,22 @@ Si algún día cambias de proyecto, actualiza ese archivo y `.firebaserc`. Para 
 
 ## 3. Publicar
 
+### Opción A: automática con GitHub Actions (recomendada)
+
+El flujo `.github/workflows/modular-studio-firebase.yml` compila, corre lint y pruebas, y publica hosting + reglas cada vez que cambia `modular-studio/` en la rama principal o en la rama de trabajo. También se puede lanzar a mano desde la pestaña **Actions**.
+
+Configuración única:
+
+1. Consola de Firebase → ⚙ **Configuración del proyecto → Cuentas de servicio → Generar nueva clave privada**. Se descarga un archivo JSON. Trátalo como una contraseña: no lo subas al repositorio ni lo compartas por chat.
+2. GitHub → repositorio → **Settings → Secrets and variables → Actions → New repository secret**.
+   - Nombre: `FIREBASE_SERVICE_ACCOUNT_MODULAR_STUDIO_MX`
+   - Valor: el contenido completo del archivo JSON.
+3. Borra el archivo JSON de tu computadora.
+
+Si el deploy falla por permisos, en Google Cloud Console → IAM agrega a esa cuenta de servicio los roles **Firebase Hosting Admin** y **Firebase Rules Admin**.
+
+### Opción B: desde tu computadora
+
 ```bash
 npm install
 ```
@@ -31,9 +47,7 @@ npx -y firebase-tools@15.35.0 login
 npm run deploy:firebase
 ```
 
-`deploy:firebase` compila el sitio estático (`apps/web/out`) y ejecuta `firebase deploy --only hosting,firestore`, que sube el sitio, `firestore.rules` y `firestore.indexes.json`. Al terminar, la CLI muestra la URL pública, por ejemplo `https://modular-studio-mx.web.app`.
-
-Para publicar cambios posteriores sólo repite `npm run deploy:firebase`.
+En ambos casos se publica el sitio (`apps/web/out`), `firestore.rules` y `firestore.indexes.json`. La URL pública es `https://modular-studio-mx.web.app`.
 
 ## Qué cambia en modo Firebase
 
